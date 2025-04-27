@@ -35,9 +35,19 @@ public class UserController {
 
     @PostMapping("/save")
     public boolean createUser2(@RequestBody User user){
-        if (userService.createUser(user)!=null) {
-            return true;
-        }else {
+        try {
+            if (userService.createUser(user) != null) {
+                return true;
+            } else {
+                return false;
+            }
+        }catch (Exception e) {
+            System.out.println(user.getName());
+            System.out.println(user.getEmail());
+            System.out.println(user.getId());
+            System.out.println(user.getPassword());
+            System.out.println(user.getPhoneNumber());
+            // Обробка інших можливих помилок
             return false;
         }
 
