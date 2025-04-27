@@ -29,7 +29,6 @@ public class UserService {
 
     public Optional<User> getUserByEmail(String email ){
         return userRepository.findByEmail(email);
-
     }
     public Optional<User> getUserByPhoneNumber(String phoneNumber ){
         return userRepository.findByPhoneNumber(phoneNumber);
