@@ -37,12 +37,18 @@ public class ProductController {
 
     @PostMapping("/save")
     public boolean createProduct2(@RequestBody Product product){
-        if (productService.createProduct(product)!=null) {
-            return true;
-        }else {
-            return false;
+        try {
+            if (productService.createProduct(product) != null) {
+                return true;
+            } else {
+                return false;
+            }
         }
-
+        catch (Exception e) {
+            System.out.println(product.getType());
+                // Обробка інших можливих помилок
+                return false;
+            }
     }
     @PostMapping("/save2")
     public Product createProduct(@RequestBody Product product){
