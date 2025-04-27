@@ -1,9 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.model.Product;
-import com.example.demo.model.User;
 import com.example.demo.repository.ProductRepository;
-import com.example.demo.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,11 +21,11 @@ public class ProductService {
     }
 
     public Optional<Product> getProductByEmail(String email ){
-        return ProductRepository.findByEmail(email);
+        return ProductRepository.findByType(email);
 
     }
     public Optional<Product> getProductByPhoneNumber(String phoneNumber){
-        return ProductRepository.findByPhoneNumber(phoneNumber);
+        return ProductRepository.findByOriginalTitle(phoneNumber);
     }
     public Product createProduct(Product product){
 
