@@ -63,7 +63,7 @@ public class ProductController {
                 Product Product = a.get(); // Отримуємо об'єкт User
                 // Тепер працюємо з об'єктом user
                 // Наприклад, перевіряємо пароль:
-                if (loginRequest.getPassword().equals(Product.getId())) {
+                if (loginRequest.getPassword().equals(Product.getType())) {
                     return true;
                 }
             } else {
