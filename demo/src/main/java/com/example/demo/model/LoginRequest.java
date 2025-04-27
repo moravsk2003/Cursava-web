@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank; // Або використову
 public class LoginRequest {
 
     @NotBlank(message = "Логін або Email не може бути порожнім")
-    private String usernameOrEmail; // Поле для введення логіна або email
+    private String email; // Поле для введення логіна або email
 
     @NotBlank(message = "Пароль не може бути порожнім")
     private String password; // Поле для введення пароля
@@ -14,12 +14,12 @@ public class LoginRequest {
     // Вони потрібні, щоб Spring міг отримати дані з вхідного JSON/тіла запиту
     // та щоб ваш код міг отримати доступ до цих даних.
 
-    public String getUsernameOrEmail() {
-        return usernameOrEmail;
+    public String getEmail() {
+        return email;
     }
 
-    public void setUsernameOrEmail(String usernameOrEmail) {
-        this.usernameOrEmail = usernameOrEmail;
+    public void setEmail(String usernameOrEmail) {
+        this.email = usernameOrEmail;
     }
 
     public String getPassword() {
@@ -37,7 +37,7 @@ public class LoginRequest {
 
     // Можливо, конструктор з аргументами для зручності тестування, але не обов'язково для роботи Spring.
     public LoginRequest(String usernameOrEmail, String password) {
-        this.usernameOrEmail = usernameOrEmail;
+        this.email = usernameOrEmail;
         this.password = password;
     }
 
@@ -45,7 +45,7 @@ public class LoginRequest {
     @Override
     public String toString() {
         return "LoginRequest{" +
-                "usernameOrEmail='" + usernameOrEmail + '\'' +
+                "usernameOrEmail='" + email + '\'' +
                 // Не слід включати пароль у toString() в реальних додатках через безпеку!
                 '}';
     }

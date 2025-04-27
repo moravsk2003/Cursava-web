@@ -64,7 +64,7 @@ public class ProductController {
     public boolean authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
         try {
 
-            Optional<Product> a = productService.getProductByEmail(loginRequest.getUsernameOrEmail());
+            Optional<Product> a = productService.getProductByEmail(loginRequest.getEmail());
             if (a.isPresent()) {
                 Product Product = a.get(); // Отримуємо об'єкт User
                 // Тепер працюємо з об'єктом user

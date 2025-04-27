@@ -66,8 +66,8 @@ public class UserController {
     }
     @GetMapping("/text")
     public String createUser3(){
-        System.out.println("test");
-        return "test";
+        System.out.println(ok);
+        return ok;
 
     }
     @PostMapping("/save2")
@@ -85,13 +85,14 @@ public class UserController {
         createUser3();
         try {
 
-            Optional<User> a = userService.getUserByEmail(loginRequest.getUsernameOrEmail());
+            Optional<User> a = userService.getUserByEmail(loginRequest.getEmail());
             if (a.isPresent()) {
                 User user = a.get(); // Отримуємо об'єкт User
                 // Тепер працюємо з об'єктом user
                 // Наприклад, перевіряємо пароль:
                 if (loginRequest.getPassword().equals(user.getPassword())) {
                     ok="false";
+                    System.out.println("є");
                     return true;
                 }
             } else {
