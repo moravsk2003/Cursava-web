@@ -172,8 +172,8 @@
         <h1 class="h3 mb-3 fw-normal">Please register</h1>
     
         <div class="form-floating">
-          <input type="text" class="form-control" id="login" name="login" placeholder="Login" required>
-          <label for="login">Login</label>
+          <input type="text" class="form-control" id="name" name="name" placeholder="name" required>
+          <label for="name">Login</label>
         </div>
     
         <div class="form-floating">
@@ -217,7 +217,7 @@
     
         // Збираємо дані форми
         const formData = {
-          login: document.getElementById('login').value,
+          name: document.getElementById('name').value,
           email: document.getElementById('email').value,
           password: document.getElementById('password').value,
           phone: document.getElementById('phone').value,
