@@ -5,6 +5,7 @@ import com.example.demo.service.UserService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
@@ -22,11 +23,21 @@ public class UserController {
 
     @PostMapping("/save")
     public User createUser(@RequestBody User user){
-        List<User> users = userService.getAllUsers();
-        System.out.println(users);  // Додайте це для перевірки
-        //System.out.println("User after save: " + user);
         return userService.createUser(user);
 
     }
+    @PostMapping("/email")
+    public Optional<User> getUserByEmail(@RequestBody String email){
+        return userService.getUserByEmail(email);
+
+    }
+    @PostMapping("/phone")
+    public Optional<User> getUserByPhoneNumber(@RequestBody String phoneNumber){
+        return userService.getUserByPhoneNumber(phoneNumber);
+
+    }
+
+
+
 
 }
