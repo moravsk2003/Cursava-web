@@ -37,9 +37,7 @@ public class UserController {
     public boolean createUser2(@RequestBody User user){
         if (userService.createUser(user)!=null) {
             return true;
-        }else {
-            return false;
-        }
+      в
 
     }
     @PostMapping("/save2")
