@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Підключення до Spring</title>
+</head>
+<body>
+    <h1>Тест підключення</h1>
+    <button onclick="fetchData()">Отримати дані</button>
+    <p id="result"></p>
+
+    <script>
+        function fetchData() {
+            fetch('http://localhost:8080/users/hel')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('result').innerText = data;
+                })
+                .catch(error => {
+                    console.error('Помилка:', error);
+                });
+        }
+    </script>
+</body>
+</html>

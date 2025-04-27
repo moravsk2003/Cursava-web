@@ -20,6 +20,10 @@ public class UserController {
     public List<User> getAllUsers(){
         return userService.getAllUsers();
     }
+    @GetMapping("/hel")
+    public String sayHello(){
+        return "Привіт з беку";
+    }
 
     @PostMapping("/save")
     public User createUser(@RequestBody User user){
@@ -36,8 +40,4 @@ public class UserController {
         return userService.getUserByPhoneNumber(phoneNumber);
 
     }
-
-
-
-
 }
