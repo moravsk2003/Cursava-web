@@ -91,7 +91,7 @@ public class UserController {
                 // Тепер працюємо з об'єктом user
                 // Наприклад, перевіряємо пароль:
                 if (loginRequest.getPassword().equals(user.getPassword())) {
-                    ok="false";
+                    ok="true";
                     System.out.println("є");
                     return true;
                 }
