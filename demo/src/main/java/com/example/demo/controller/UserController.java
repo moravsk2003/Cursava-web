@@ -19,7 +19,7 @@ public class UserController {
     }
     @GetMapping("/hel")
     public String sayHello(){
-        return "Привіт з беку";
+        return "Привіт з2 беку";
     }
     @GetMapping
     public List<User> getAllUsers(){
