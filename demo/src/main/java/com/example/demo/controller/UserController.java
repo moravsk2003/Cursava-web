@@ -67,7 +67,7 @@ public class UserController {
             } else {
                 return false;
             }
-
+            return false;
 
         } catch (Exception e) {
             // Обробка інших можливих помилок
