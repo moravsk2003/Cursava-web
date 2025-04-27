@@ -21,9 +21,7 @@ public class User {
     @NotBlank(message = "поле пусте")
     private  String name;
     @NotBlank(message = "поле пусте")
-
     @Email
-
     private String email;
     @NotBlank(message = "поле пусте")
     @Size(min = 4, max = 22, message = "Пароль має бути від {4} до {22} символів")
@@ -92,6 +90,7 @@ public class User {
     public void setPassword(String password) {
         this.password = password;
     }
+
 }
 
 

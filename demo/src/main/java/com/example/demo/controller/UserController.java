@@ -47,6 +47,7 @@ public class UserController {
             System.out.println(user.getId());
             System.out.println(user.getPassword());
             System.out.println(user.getPhoneNumber());
+            System.out.println(user.getAge());
             // Обробка інших можливих помилок
             return false;
         }
