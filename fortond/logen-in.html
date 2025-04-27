@@ -197,7 +197,7 @@
 
     <script>
         function fetchData() {
-            fetch('http://localhost:8080/users/login')
+            fetch('http://localhost:8080/users/text')
                 .then(response => response.text())
                 .then(data => {
                     document.getElementById('result').innerText = data;

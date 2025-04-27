@@ -18,6 +18,7 @@ import java.util.Optional;
 @RequestMapping("/users")
 public class UserController {
     private final UserService userService;
+    String ok="false";
 
 
     public UserController(UserService userService) {
@@ -36,16 +37,21 @@ public class UserController {
     @PostMapping("/save")
     public boolean createUser2(@RequestBody User user){
         try {Optional<User> a = userService.getUserByEmail(user.getEmail());
+            createUser3();
             if (!a.isPresent()) {
                 if (userService.createUser(user) != null) {
+                    ok="true";
                     return true;
                 } else {
+                    ok="false";
                     return false;
                 }
             }else{
+                ok="false";
                 return false;
             }
         }catch (Exception e) {
+            createUser3();
             System.out.println(user.getName());
             System.out.println(user.getEmail());
             System.out.println(user.getId());
@@ -53,8 +59,15 @@ public class UserController {
             System.out.println(user.getPhoneNumber());
             System.out.println(user.getAge());
             // Обробка інших можливих помилок
+            ok="false";
             return false;
         }
+
+    }
+    @GetMapping("/text")
+    public String createUser3(){
+        System.out.println("test");
+        return "test";
 
     }
     @PostMapping("/save2")
@@ -69,6 +82,7 @@ public class UserController {
     }
     @PostMapping("/login") // Обробляє POST запити на /api/auth/login
     public boolean authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+        createUser3();
         try {
 
             Optional<User> a = userService.getUserByEmail(loginRequest.getUsernameOrEmail());
@@ -77,15 +91,18 @@ public class UserController {
                 // Тепер працюємо з об'єктом user
                 // Наприклад, перевіряємо пароль:
                 if (loginRequest.getPassword().equals(user.getPassword())) {
+                    ok="false";
                     return true;
                 }
             } else {
+                ok="false";
                 return false;
             }
             return false;
 
         } catch (Exception e) {
             // Обробка інших можливих помилок
+            ok="false";
             return false;
         }
     }
