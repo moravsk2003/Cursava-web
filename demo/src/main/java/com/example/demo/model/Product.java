@@ -1,4 +1,10 @@
 package com.example.demo.model;
 
-public interface Product {
+public class Product {
+    int ied;
+    String originalTitle;
+    String type;
+    String description;
+    int reviewCount;
+    int averageRating;
 }

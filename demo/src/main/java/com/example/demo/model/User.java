@@ -2,10 +2,7 @@ package com.example.demo.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.*;
 import lombok.*;
 
 @Entity
@@ -28,18 +25,23 @@ public class User {
     @Email
 
     private String email;
+    @NotBlank(message = "поле пусте")
+    @Size(min = 4, max = 22, message = "Пароль має бути від {4} до {22} символів")
+    private String password;
     @Min(0)
     private int age;
-    @Pattern(regexp = "\\d{10}",message = "phon number muct be 10 digsts")
+    @Pattern(regexp = "\\d{12}",message = "phon number muct be 10 digsts")
     private String phoneNumber;
 
-    public User(Long id, String name, String email, int age, String phoneNumber) {
+    public User(Long id, String name, String email, int age, String phoneNumber,String password) {
 
         this.id = id;
         this.name = name;
         this.email = email;
         this.age = age;
         this.phoneNumber = phoneNumber;
+        this.password=password;
+
     }
 
 
