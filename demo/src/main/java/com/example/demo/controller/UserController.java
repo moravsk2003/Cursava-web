@@ -35,10 +35,14 @@ public class UserController {
 
     @PostMapping("/save")
     public boolean createUser2(@RequestBody User user){
-        try {
-            if (userService.createUser(user) != null) {
-                return true;
-            } else {
+        try {Optional<User> a = userService.getUserByEmail(user.getEmail());
+            if (!a.isPresent()) {
+                if (userService.createUser(user) != null) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }else{
                 return false;
             }
         }catch (Exception e) {
