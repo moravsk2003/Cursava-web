@@ -11,7 +11,7 @@
 
     <script>
         function fetchData() {
-            fetch('http://localhost:3000/users/hel')
+            fetch('http://localhost:8080/users/hel')
                 .then(response => response.text())
                 .then(data => {
                     document.getElementById('result').innerText = data;

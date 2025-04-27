@@ -17,14 +17,15 @@ public class UserController {
     public UserController(UserService userService) {
         this.userService = userService;
     }
-    @GetMapping
-    public List<User> getAllUsers(){
-        return userService.getAllUsers();
-    }
     @GetMapping("/hel")
     public String sayHello(){
         return "Привіт з беку";
     }
+    @GetMapping
+    public List<User> getAllUsers(){
+        return userService.getAllUsers();
+    }
+
 
     @PostMapping("/save")
     public User createUser(@RequestBody User user){
