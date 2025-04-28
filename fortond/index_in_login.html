@@ -24,6 +24,28 @@
 
 
     <style>
+      .card {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeIn 0.5s ease-out forwards;
+  }
+
+  @keyframes fadeIn {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .card-container {
+    opacity: 0;
+    animation: fadeInContainer 0.7s ease-out forwards;
+  }
+
+  @keyframes fadeInContainer {
+    to {
+      opacity: 1;
+    }
+  }
       #filter-nav .nav-link {
       color: #555;
       border-radius: 25px;
@@ -126,10 +148,6 @@
       .bd-mode-toggle .dropdown-menu .active .bi {
         display: block !important;
       }
-      .fade-out {
-      opacity: 0;
-      transition: opacity 0.5s ease-out;
-      }
     </style>
     <link href="headers.css" rel="stylesheet">
   </head>
@@ -225,8 +243,18 @@
           <form class="col-12 col-lg-auto mb-2 mb-lg-0 me-lg-3" role="search">
             <input type="search" class="form-control form-control-dark text-bg-dark" placeholder="Search..." aria-label="Search">
           </form>
-          <button type="button" class="btn btn-light text-dark me-2" onclick="navigateWithFade('logen-in.html')">Login</button>
-          <button type="button" class="btn btn-primary" onclick="navigateWithFade('sing-in.html')">Sign-up</button>
+          <div class="dropdown text-end">
+            <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+              <img src="photo/pngwing.com .png" alt="mdo" width="32" height="32" class="rounded-circle">
+            </a>
+            <ul class="dropdown-menu text-small ">
+              <li><a class="dropdown-item" href="#">Profile</a></li>
+              <li><a class="dropdown-item" href="#">My comit</a></li>
+              <li><a class="dropdown-item" href="#">History</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="#" onclick="navigateWithFade('index.html')">Sign out</a></li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
@@ -240,25 +268,16 @@
         <a class="nav-link" data-filter="manga" href="#">Manga</a>
         <a class="nav-link" data-filter="film" href="#">Film</a>
         <a class="nav-link" data-filter="web_nowela" href="#">Web_nowela</a>
+        <button class="btn btn-primary" onclick="addNewCard()">Add New Card</button>
       </nav>
     </div>
-    <div class="container py-4">
-  
-      <div class="p-5 mb-4 bg-body-tertiary rounded-3" id="fade-block">
-        <div class="container-fluid py-5">
-          <h1 class="display-5 fw-bold">Want more options?</h1>
-          <p class="col-md-8 fs-4">Log in to your account to have more opportunities to view, comment, rate, and so on!</p>
-          <button class="btn btn-primary btn-lg" type="button" onclick="navigateWithFade('logen-in.html')">Login</button>
-          <button class="btn btn-outline-secondary btn-lg px-4" type="button" onclick="fadeAndNavigate('index_in_login.html')">View</button>
+    <div class="album py-5 bg-body-tertiary">
+      <div class="container">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3" id="cards-container">
         </div>
       </div>
-      <div class="album py-5 bg-body-tertiary">
-        <div class="container">
-          <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3" id="cards-container">
-            <!-- Картки будуть додаватись тут -->
-          </div>
-        </div>
-      </div>
+    </div>
+       
   </header>
 </main>
 
@@ -316,16 +335,31 @@
       document.body.classList.add('fade-out');
       setTimeout(() => {
         window.location.href = target;
-      }, 500); 
+      }, 500); // тривалість анімації
       }
-      function fadeAndNavigate(target) {
-        const fadeBlock = document.getElementById('fade-block');
-          fadeBlock.classList.add('fade-out');
-          setTimeout(() => {
-          window.location.href = target; 
-          }, 500); 
-      }
-  // Функція для відображення карток на сторінці
+      function addNewCard() {
+  // Створюємо нову картку
+  const newCard = {
+    id: Date.now(), // Використовуємо поточний час для унікального ідентифікатора
+    title: "New Card",
+    description: "This is a new card added dynamically.",
+    time: new Date().toLocaleTimeString() // Можна змінити за потреби
+  };
+
+  // Отримуємо збережений масив карток з localStorage, або створюємо новий, якщо немає
+  const cards = JSON.parse(localStorage.getItem('cards')) || [];
+
+  // Додаємо нову картку в масив
+  cards.push(newCard);
+
+  // Зберігаємо оновлений масив карток в localStorage
+  localStorage.setItem('cards', JSON.stringify(cards));
+
+  // Оновлюємо картки на сторінці
+  renderCards();
+}
+
+// Функція для відображення карток на сторінці
 function renderCards() {
   // Отримуємо картки з localStorage
   const cards = JSON.parse(localStorage.getItem('cards')) || [];

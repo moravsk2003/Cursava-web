@@ -31,7 +31,10 @@
         -moz-user-select: none;
         user-select: none;
       }
-
+      body.fade-out {
+    opacity: 0;
+    transition: opacity 0.5s ease-out;
+    }
       @media (min-width: 768px) {
         .bd-placeholder-img-lg {
           font-size: 3.5rem;
@@ -203,7 +206,7 @@
           </label>
         </div>
     
-        <button class="btn btn-primary w-100 py-2" type="submit" onclick="window.location.href='index.html'">Sign-up</button>
+        <button class="btn btn-primary w-100 py-2" type="submit" onclick="navigateWithFade('index.html')">Sign-up</button>
         <p class="mt-5 mb-3 text-body-secondary">&copy; 2017–2025</p>
       </form>
     </main>
@@ -226,25 +229,32 @@
     
         // Відправка POST запиту на сервер
         fetch('http://localhost:8080/users/save', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(formData), 
-        })
-        .then(response => response.json()) // Якщо сервер повернув JSON
-        .then(data => {
-          if (data) {
-            alert('User registered successfully!');
-          } else {
-            alert('Error registering user');
-          }
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          alert('An error occurred during registration');
-        });
-      });
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(formData),
+    })
+    .then(response => response.json()) // Якщо сервер повернув JSON
+    .then(data => {
+      if (data) {
+        alert('User registered successfully!');
+        navigateWithFade('next-page.html'); // Переходь на наступну сторінку
+      } else {
+        alert('Error registering user');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('An error occurred during registration');
+    });
+  });
+      function navigateWithFade(target) {
+      document.body.classList.add('fade-out');
+      setTimeout(() => {
+        window.location.href = target;
+      }, 500); // тривалість анімації
+      }
     </script>
   </body>
 </html>
