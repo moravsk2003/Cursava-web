@@ -1,14 +1,6 @@
 #FileLock
-<<<<<<< Updated upstream
-#Sun Apr 27 17:13:44 EEST 2025
+#Wed Apr 30 09:36:13 EEST 2025
 hostName=DESKTOP-VSC88SJ
-id=1967798aff815c077a54e64b3a730b887dfdd575da4
+id=1968568ef3664d8d79d73d90a0afa61f72a3d159678
 method=file
-server=26.123.121.230\:59399
-=======
-#Sun Apr 27 15:03:12 EEST 2025
-hostName=DESKTOP-VSC88SJ
-id=19677212dab1e5231329295cf0a58990466843cc010
-method=file
-server=26.123.121.230\:57872
->>>>>>> Stashed changes
+server=26.123.121.230\:53970
