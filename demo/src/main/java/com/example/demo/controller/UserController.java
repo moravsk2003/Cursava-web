@@ -37,7 +37,6 @@ public class UserController {
     @PostMapping("/save")
     public boolean createUser2(@RequestBody User user){
         try {Optional<User> a = userService.getUserByEmail(user.getEmail());
-            createUser3();
             if (!a.isPresent()) {
                 if (userService.createUser(user) != null) {
                     ok="true";
@@ -51,13 +50,6 @@ public class UserController {
                 return false;
             }
         }catch (Exception e) {
-            createUser3();
-            System.out.println(user.getName());
-            System.out.println(user.getEmail());
-            System.out.println(user.getId());
-            System.out.println(user.getPassword());
-            System.out.println(user.getPhoneNumber());
-            System.out.println(user.getAge());
             // Обробка інших можливих помилок
             ok="false";
             return false;
@@ -82,7 +74,6 @@ public class UserController {
     }
     @PostMapping("/login") // Обробляє POST запити на /api/auth/login
     public boolean authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-        createUser3();
         try {
 
             Optional<User> a = userService.getUserByEmail(loginRequest.getEmail());
