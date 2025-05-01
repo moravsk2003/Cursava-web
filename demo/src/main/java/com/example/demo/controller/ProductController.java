@@ -32,6 +32,9 @@ public class ProductController {
     @PostMapping("/save")
     public boolean createProduct2(@RequestBody Product product){
         try {
+            Optional<Product> existingUser = productService.getProductByEmail(product.getType());
+            if (existingUser.isPresent()) {
+            }
             if (productService.createProduct(product) != null) {
                 return true;
             } else {

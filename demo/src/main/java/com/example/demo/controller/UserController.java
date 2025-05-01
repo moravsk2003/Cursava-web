@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.LoginRequest;
+import com.example.demo.model.Product;
 import com.example.demo.model.User;
 import com.example.demo.service.UserService;
 import jakarta.validation.Valid;
@@ -32,8 +33,13 @@ public class UserController {
 
     @PostMapping("/save")
     public boolean createUser2(@RequestBody User user){
-        try {Optional<User> a = userService.getUserByEmail(user.getEmail());
-            if (!a.isPresent()) {
+        try {
+            Optional<User> existingUser = userService.getUserByEmail(user.getEmail());
+            if (existingUser.isPresent()) {
+                ok="false";
+                return false;
+            }
+            else{
                 if (userService.createUser(user) != null) {
                     ok="true";
                     return true;
@@ -41,11 +47,9 @@ public class UserController {
                     ok="false";
                     return false;
                 }
-            }else{
-                ok="false";
-                return false;
             }
         }catch (Exception e) {
+            e.printStackTrace();
             // Обробка інших можливих помилок
             ok="false";
             return false;
