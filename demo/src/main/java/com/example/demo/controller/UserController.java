@@ -1,13 +1,9 @@
 package com.example.demo.controller;
 
-import com.example.demo.model.LoginRequest;
+import com.example.demo.dto.LoginRequest;
 import com.example.demo.model.User;
 import com.example.demo.service.UserService;
 import jakarta.validation.Valid;
-import org.apache.tomcat.websocket.AuthenticationException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -81,7 +77,7 @@ public class UserController {
                 User user = a.get(); // Отримуємо об'єкт User
                 // Тепер працюємо з об'єктом user
                 // Наприклад, перевіряємо пароль:
-                if (loginRequest.getPassword().equals(user.getPassword())) {
+                if (userService.checkPassword(user,loginRequest.getPassword())) {
                     ok="true";
                     System.out.println("є");
                     return true;

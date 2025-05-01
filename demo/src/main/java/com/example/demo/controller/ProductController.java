@@ -1,15 +1,9 @@
 package com.example.demo.controller;
 
-import com.example.demo.model.LoginRequest;
+import com.example.demo.dto.LoginRequest;
 import com.example.demo.model.Product;
-import com.example.demo.model.User;
 import com.example.demo.service.ProductService;
-import com.example.demo.service.UserService;
 import jakarta.validation.Valid;
-import org.apache.tomcat.websocket.AuthenticationException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,7 +24,7 @@ public class ProductController {
         return "Привіт з беку";
     }
     @GetMapping
-    public List<Product> getAllUsers(){
+    public List<Product> getAllProduct(){
         return productService.getAllProduct();
     }
 
@@ -61,7 +55,7 @@ public class ProductController {
 
     }
     @PostMapping("/login") // Обробляє POST запити на /api/auth/login
-    public boolean authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+    public boolean authenticateProduct(@Valid @RequestBody LoginRequest loginRequest) {
         try {
 
             Optional<Product> a = productService.getProductByEmail(loginRequest.getEmail());
@@ -83,7 +77,7 @@ public class ProductController {
         }
     }
     @PostMapping("/phone")
-    public Optional<Product> getUserByPhoneNumber(@RequestBody String phoneNumber){
+    public Optional<Product> getProductByPhoneNumber(@RequestBody String phoneNumber){
         return productService.getProductByPhoneNumber(phoneNumber);
 
     }

@@ -6,6 +6,7 @@ import com.example.demo.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,10 +21,11 @@ import java.util.Optional;
 public class UserService {
     @Autowired
     private  final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository) {
-
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
     @Transactional // Видалення має виконуватися в транзакції
     public void clearYourTable() {
@@ -47,8 +49,12 @@ public class UserService {
         return userRepository.findByPhoneNumber(phoneNumber);
     }
     public User createUser(User user){
-
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
+    }
+    public boolean checkPassword(User user, String rawPassword) {
+        // Використовуємо matches() для порівняння введеного (сирого) пароля з хешованим
+        return passwordEncoder.matches(rawPassword, user.getPassword());
     }
 
 }

@@ -1,4 +1,4 @@
-package com.example.demo.model;
+package com.example.demo.dto;
 
 import jakarta.validation.constraints.NotBlank; // Або використовуйте javax.validation.constraints.NotBlank для старіших версій Jakarta EE / Java EE
 
