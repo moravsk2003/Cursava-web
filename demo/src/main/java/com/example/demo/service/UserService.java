@@ -56,5 +56,20 @@ public class UserService {
         // Використовуємо matches() для порівняння введеного (сирого) пароля з хешованим
         return passwordEncoder.matches(rawPassword, user.getPassword());
     }
+    @Transactional // Видалення одного користувача також може бути частиною транзакції
+    public boolean deleteUserById(Long userId) {
+        // Перевіряємо, чи існує користувач з таким ID
+        if (userRepository.existsById(userId)) {
+            // Якщо існує, видаляємо його
+            userRepository.deleteById(userId);
+            // Можна додатково перевірити, чи дійсно він видалився, але deleteById
+            // зазвичай працює як очікується, або кидає виняток при проблемах.
+            // Для простоти, припустимо, що якщо existsById було true, і deleteById
+            // не кинув виняток, то видалення було успішним.
+            return true; // Користувача знайдено і видалено
+        } else {
+            return false; // Користувача з таким ID не знайдено
+        }
+    }
 
 }
