@@ -8,6 +8,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+// Імпортуємо наш кастомний виняток
+import com.example.demo.exception.ResourceNotFoundException;
+import java.util.Optional; // Не забуваємо про імпорт Optional, якщо він десь ще використовується
+
 
 @Service
 public class CommentService {
@@ -28,12 +32,12 @@ public class CommentService {
     @Transactional // Операція створення також може бути транзакційною
     public Comment createComment(Long productId, String commentText, Long authorId) {
         // 1. Знаходимо продукт, до якого додається коментар
-        Product product = productService.getProductById(productId) // Тобі потрібно додати метод getProductById у ProductService, якщо його ще немає
-                .orElseThrow(() -> new RuntimeException("Product not found")); // Обробка помилки, якщо продукт не знайдено
+        // *** ВИПРАВЛЕНО: Прибрано .orElseThrow(), оскільки getProductById вже кидає виняток ***
+        Product product = productService.getProductById(productId);
 
         // 2. Знаходимо користувача, який залишає коментар (автора)
-        User author = userService.getUserById(authorId) // Тобі потрібно додати метод getUserById у UserService, якщо його ще немає, або отримати поточного аутентифікованого користувача
-                .orElseThrow(() -> new RuntimeException("Author user not found")); // Обробка помилки, якщо автора не знайдено
+        // *** ВИПРАВЛЕНО: Прибрано .orElseThrow(), оскільки getUserById вже кидає виняток ***
+        User author = userService.getUserById(authorId);
 
         // 3. Створюємо новий об'єкт коментаря
         Comment comment = new Comment();

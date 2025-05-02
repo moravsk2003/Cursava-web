@@ -1,7 +1,9 @@
 package com.example.demo.controller;
 
 import com.example.demo.model.Product;
+import com.example.demo.model.ProductType;
 import com.example.demo.service.ProductService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
@@ -42,10 +44,10 @@ public class ProductController {
         return productService.createProduct(product);
 
     }
-    @PostMapping("/type")
-    public List<Product> getProductByType(@RequestBody String type){
-        return productService.getProductByType(type);
-
+    @GetMapping("/by-type") // GET /api/products/by-type?type=ANIME
+    public ResponseEntity<List<Product>> getProductsByType(@RequestParam ProductType type){ // Тип аргументу ProductType
+        List<Product> products = productService.getProductsByType(type); // Викликаємо оновлений метод сервісу
+        return ResponseEntity.ok(products); // Повертаємо 200 OK і список продуктів
     }
     @PostMapping("/originalTitle")
     public Optional<Product> getProductByOriginalTitle(@RequestBody String originalTitle){

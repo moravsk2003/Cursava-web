@@ -8,15 +8,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
-
+import com.example.demo.exception.ResourceNotFoundException;
 //@AllArgsConstructor
 //@RequiredArgsConstructor
 @Service
 public class UserService {
-    @Autowired
     private  final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-
+    @Autowired
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
@@ -35,10 +34,11 @@ public class UserService {
 
         return userRepository.findAll();
     }
-    public Optional<User> getUserById(Long id){
-        return userRepository.findById(id);
-    }
-    public Optional<User> getUserByEmail(String email ){
+    //getUserById тепер кидає виняток, якщо користувача не знайдено
+    public User getUserById(Long id){ // Змінив тип повернення з Optional<User> на User
+        return userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Користувача з ID '" + id + "' не знайдено"));
+    }    public Optional<User> getUserByEmail(String email ){
         return userRepository.findByEmail(email);
     }
     public Optional<User> getUserByPhoneNumber(String phoneNumber ){

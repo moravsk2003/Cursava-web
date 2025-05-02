@@ -1,6 +1,8 @@
 package com.example.demo.service;
 
+import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.Product;
+import com.example.demo.model.ProductType;
 import com.example.demo.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,15 +23,16 @@ public class ProductService {
         return productRepository.findAll();
     }
 
-    public List<Product> getProductByType(String type ){
+    public List<Product> getProductsByType(ProductType type ){ // Змінено тип аргументу
         return productRepository.findByType(type);
-
     }
+
     public Optional<Product> getProductByOriginalTitle(String originalTitle){
         return productRepository.findByOriginalTitle(originalTitle);
     }
-    public Optional<Product> getProductById(Long id){
-        return productRepository.findById(id);
+    public Product getProductById(Long id){ // Змінив тип повернення з Optional<Product> на Product
+        return productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Продукт з ID '" + id + "' не знайдено"));
     }
     public Product createProduct(Product product){
 

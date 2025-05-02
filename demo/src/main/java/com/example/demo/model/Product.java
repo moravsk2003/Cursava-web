@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -21,8 +22,9 @@ public class Product {
     private Long id;
     @NotBlank(message = "поле Original Title не може бути пустим")
     private String originalTitle;
-    @NotBlank(message = "поле Тип не може бути пустим")
-    private String type;
+    @Enumerated(EnumType.STRING) // Вказує JPA зберігати Enum як рядок в базі даних (назву константи)
+    @NotNull(message = "Поле Тип не може бути пустим")
+    private ProductType type; // Тип поля змінено на ProductType
     @NotBlank(message = "поле пусте")
     private String description;
     @Min(0)
