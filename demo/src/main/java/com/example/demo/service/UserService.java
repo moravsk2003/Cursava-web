@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 
+import com.example.demo.model.Product;
 import com.example.demo.model.User;
 import com.example.demo.repository.UserRepository;
 import lombok.AllArgsConstructor;
@@ -41,7 +42,9 @@ public class UserService {
 
         return userRepository.findAll();
     }
-
+    public Optional<User> getUserById(Long id){
+        return userRepository.findById(id);
+    }
     public Optional<User> getUserByEmail(String email ){
         return userRepository.findByEmail(email);
     }

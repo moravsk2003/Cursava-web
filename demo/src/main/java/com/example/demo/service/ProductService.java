@@ -28,6 +28,9 @@ public class ProductService {
     public Optional<Product> getProductByPhoneNumber(String phoneNumber){
         return productRepository.findByOriginalTitle(phoneNumber);
     }
+    public Optional<Product> getProductById(Long id){
+        return productRepository.findById(id);
+    }
     public Product createProduct(Product product){
 
         return productRepository.save(product);
