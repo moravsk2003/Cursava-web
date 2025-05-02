@@ -11,7 +11,7 @@ import java.util.Optional;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000")
-@RequestMapping("/Product")
+@RequestMapping("/product")
 public class ProductController {
     private final ProductService productService;
 
@@ -32,8 +32,9 @@ public class ProductController {
     @PostMapping("/save")
     public boolean createProduct2(@RequestBody Product product){
         try {
-            Optional<Product> existingUser = productService.getProductByEmail(product.getType());
-            if (existingUser.isPresent()) {
+            Optional<Product> existingProduct = productService.getProductByType(product.getType());
+            if (existingProduct.isPresent()) {
+                return false;
             }
             if (productService.createProduct(product) != null) {
                 return true;
@@ -47,21 +48,21 @@ public class ProductController {
                 return false;
             }
     }
-    @PostMapping("/save2")
+    @PostMapping("/saveTest")
     public Product createProduct(@RequestBody Product product){
         return productService.createProduct(product);
 
     }
-    @PostMapping("/email")
-    public Optional<Product> getProductByEmail(@RequestBody String email){
-        return productService.getProductByEmail(email);
+    @PostMapping("/type")
+    public Optional<Product> getProductByType(@RequestBody String type){
+        return productService.getProductByType(type);
 
     }
     @PostMapping("/login") // Обробляє POST запити на /api/auth/login
     public boolean authenticateProduct(@Valid @RequestBody LoginRequest loginRequest) {
         try {
 
-            Optional<Product> a = productService.getProductByEmail(loginRequest.getEmail());
+            Optional<Product> a = productService.getProductByType(loginRequest.getEmail());
             if (a.isPresent()) {
                 Product Product = a.get(); // Отримуємо об'єкт User
                 // Тепер працюємо з об'єктом user
@@ -79,9 +80,9 @@ public class ProductController {
             return false;
         }
     }
-    @PostMapping("/phone")
-    public Optional<Product> getProductByPhoneNumber(@RequestBody String phoneNumber){
-        return productService.getProductByPhoneNumber(phoneNumber);
+    @PostMapping("/originalTitle")
+    public Optional<Product> getProductByOriginalTitle(@RequestBody String originalTitle){
+        return productService.getProductByOriginalTitle(originalTitle);
 
     }
 }

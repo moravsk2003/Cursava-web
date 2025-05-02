@@ -21,12 +21,12 @@ public class ProductService {
         return productRepository.findAll();
     }
 
-    public Optional<Product> getProductByEmail(String email ){
-        return productRepository.findByType(email);
+    public Optional<Product> getProductByType(String type ){
+        return productRepository.findByType(type);
 
     }
-    public Optional<Product> getProductByPhoneNumber(String phoneNumber){
-        return productRepository.findByOriginalTitle(phoneNumber);
+    public Optional<Product> getProductByOriginalTitle(String originalTitle){
+        return productRepository.findByOriginalTitle(originalTitle);
     }
     public Optional<Product> getProductById(Long id){
         return productRepository.findById(id);
@@ -36,7 +36,7 @@ public class ProductService {
         return productRepository.save(product);
     }
     @Transactional // Видалення має виконуватися в транзакції
-    public void clearYourTable() {
+    public void clearProductTable() {
         // Варіант 1: deleteAll() - може бути повільнішим для великих таблиць, видаляє сутності по черзі
         // yourEntityRepository.deleteAll();
 
