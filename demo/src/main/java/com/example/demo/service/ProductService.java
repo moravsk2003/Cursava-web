@@ -27,8 +27,9 @@ public class ProductService {
         return productRepository.findByType(type);
     }
 
-    public Optional<Product> getProductByOriginalTitle(String originalTitle){
-        return productRepository.findByOriginalTitle(originalTitle);
+    public Product getProductByOriginalTitle(String originalTitle){
+        return productRepository.findByOriginalTitle(originalTitle)
+                .orElseThrow(() -> new ResourceNotFoundException("Продукт з Original Title '" + originalTitle + "' не знайдено"));
     }
     public Product getProductById(Long id){ // Змінив тип повернення з Optional<Product> на Product
         return productRepository.findById(id)

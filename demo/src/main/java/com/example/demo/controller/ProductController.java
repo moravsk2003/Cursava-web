@@ -50,7 +50,7 @@ public class ProductController {
         return ResponseEntity.ok(products); // Повертаємо 200 OK і список продуктів
     }
     @PostMapping("/originalTitle")
-    public Optional<Product> getProductByOriginalTitle(@RequestBody String originalTitle){
+    public Product getProductByOriginalTitle(@RequestBody String originalTitle){
         return productService.getProductByOriginalTitle(originalTitle);
 
     }
