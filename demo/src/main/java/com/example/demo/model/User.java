@@ -26,7 +26,7 @@ public class User {
     private String password;
     @Min(0)
     private int age;
-    @Pattern(regexp = "\\d{12}",message = "phon number muct be 10 digsts")
+    @Pattern(regexp = "\\d{12}",message = "phon number muct be 12 digsts")
     private String phoneNumber;
 
     public User(Long id, String name, String email, int age, String phoneNumber,String password) {

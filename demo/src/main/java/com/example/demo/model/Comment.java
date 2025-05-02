@@ -1,6 +1,7 @@
 package com.example.demo.model;
 import com.example.demo.model.User;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
@@ -17,8 +18,8 @@ public class Comment {
     @Id // Позначає поле як первинний ключ
     @GeneratedValue(strategy = GenerationType.IDENTITY) // Вказує, що ID буде генеруватися базою даних (автоінкремент)
     private Long id;
-
     @Column(nullable = false, columnDefinition = "TEXT") // Поле для тексту коментаря. nullable = false означає, що поле не може бути порожнім у базі. columnDefinition = "TEXT" може бути корисним для довших текстів.
+    @NotBlank(message = "Текст коментаря не може бути пустим")
     private String text;
 
     // Зв'язок Many-to-One з User (автор коментаря)

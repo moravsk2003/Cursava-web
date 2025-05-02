@@ -10,7 +10,7 @@ import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000") // Дозволяємо запити з фронтенду на localhost:3000
-@RequestMapping("/api/comments") // Базовий шлях для ендпоінтів коментарів
+@RequestMapping("/comments") // Базовий шлях для ендпоінтів коментарів
 public class CommentController {
 
     private final CommentService commentService;
