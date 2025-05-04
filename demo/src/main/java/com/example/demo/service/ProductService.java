@@ -28,28 +28,40 @@ public class ProductService {
     }
 
 
-    // *** НОВИЙ МЕТОД: Видалити продукт за ID з перевіркою прав (якщо потрібно) ***
-    @Transactional // Видалення має виконуватися в транзакції
-    // Приймає ID продукту та, можливо, ID поточного користувача для перевірки
-    public void deleteProductById(Long productId  , Long currentUserId ) {
+    @Transactional
+    public void deleteProductById(Long productId, Long currentUserId) {
         // 1. Знаходимо продукт, який потрібно видалити
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Продукт з ID '" + productId + "' не знайдено для видалення"));
 
-        // 2. *** ДОДАНО: Перевірка авторизації (якщо потрібно) ***
-        // Наприклад: лише творець або адмін може видалити продукт
+        // 2. *** ДОДАНО/ЗМІНЕНО: Перевірка авторизації ***
+        try {
+            User currentUser = userService.getUserById(currentUserId);
 
-        User currentUser = userService.getUserById(currentUserId); // Знаходимо поточного користувача
+            // Перевіряємо, чи користувач є АДМІНОМ
+            boolean isAdmin = currentUser.getRoles() != null && currentUser.getRoles().equals("ADMIN"); // Можливо, проблема з цим порівнянням
 
-        // Перевірка, чи поточний користувач є творцем продукту АБО чи він є адміном
-        // Припускаємо, що у вас є поле 'creator' у Product та метод getRoles() у User
-        if (!product.getCreator().getId().equals(currentUserId) && !currentUser.getRoles().contains("ADMIN")) {
-            // Якщо користувач не є творцем і не є адміном, кидаємо виняток
-            throw new AccessDeniedException("Користувач не має прав для видалення цього продукту.");
-            // Або можна кинути кастомний виняток, який обробить GlobalExceptionHandler
+            // Якщо користувач НЕ є адміном, виконуємо додаткові перевірки
+            if (!isAdmin) {
+                // *** ВАЖЛИВО: Перевіряємо, чи у продукту ВЗАГАЛІ є творець перед викликом getCreator().getId() ***
+                if (product.getCreator() != null) { // <-- ЦЯ ПЕРЕВІРКА МАЄ БУТИ
+                    // Якщо творець є, перевіряємо, чи поточний користувач НЕ є цим творцем
+                    if (!product.getCreator().getId().equals(currentUserId)) { // <-- Цей рядок або наступний може бути рядком 46
+                        throw new AccessDeniedException("Користувач не є творцем продукту і не має прав адміністратора.");
+                    }
+                } else {
+                    // Якщо творця НЕМАЄ (null), і користувач НЕ адмін
+                    // -> відмовляємо в доступі (бо видаляти продукти без творця може тільки адмін за цією логікою)
+                    throw new AccessDeniedException("Лише адміністратор може видаляти продукти без вказаного творця."); // <-- Інший можливий рядок 46
+                }
+            }
+
+        } catch (ResourceNotFoundException e) {
+            throw new RuntimeException("Помилка авторизації: не знайдено поточного користувача.", e);
         }
 
-        // 3. Видаляємо продукт
+
+        // 3. Видаляємо продукт (якщо авторизація пройшла)
         productRepository.deleteById(productId);
     }
     public List<Product> getProductsByType(ProductType type ){ // Змінено тип аргументу
