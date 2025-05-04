@@ -22,7 +22,7 @@ import com.example.demo.util.JwtUtil;
 import java.util.Map;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000") // Дозволяємо запити з фронтенду
+//@CrossOrigin(origins = "http://localhost:3000") // Дозволяємо запити з фронтенду
 @RequestMapping("/auth") // Базовий шлях для аутентифікації
 public class AuthController {
 

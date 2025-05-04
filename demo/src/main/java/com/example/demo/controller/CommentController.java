@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000") // Дозволяємо запити з фронтенду на localhost:3000
+//@CrossOrigin(origins = "http://localhost:3000") // Дозволяємо запити з фронтенду на localhost:3000
 @RequestMapping("/comments") // Базовий шлях для ендпоінтів коментарів
 public class CommentController {
 

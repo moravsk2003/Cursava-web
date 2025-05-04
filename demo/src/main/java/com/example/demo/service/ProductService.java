@@ -39,6 +39,32 @@ public class ProductService {
 
         return productRepository.save(product);
     }
+    @Transactional // Оновлення має виконуватися в межах транзакції
+    public Product updateProduct(Long id, Product updatedProductDetails) {
+        // 1. Знаходимо існуючий продукт за ID
+        Product existingProduct = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Продукт з ID '" + id + "' не знайдено для оновлення"));
+
+        // 2. Оновлюємо поля існуючого продукту з даних, що прийшли в запиті
+        // Тут ми просто копіюємо поля. В реальному додатку може знадобитися
+        // більш складна логіка або використання DTO для оновлення,
+        // щоб уникнути випадкового оновлення ID або інших заборонених полів.
+        existingProduct.setOriginalTitle(updatedProductDetails.getOriginalTitle());
+        existingProduct.setType(updatedProductDetails.getType());
+        existingProduct.setDescription(updatedProductDetails.getDescription());
+        existingProduct.setReviewCount(updatedProductDetails.getReviewCount());
+        existingProduct.setAverageRating(updatedProductDetails.getAverageRating());
+        // Зауваження: оновлення списку коментарів (comments) через цей метод
+        // вимагатиме окремої логіки або спеціального DTO, оскільки це зв'язана сутність.
+        // Зараз ми не оновлюємо коментарі напряму через цей метод оновлення продукту.
+
+
+        // 3. Зберігаємо оновлений продукт (Spring Data JPA відстежує зміни в транзакції)
+        // Хоча Spring Data JPA може автоматично зберігати зміни в транзакції
+        // після модифікації сутності, явний виклик save() є хорошою практикою
+        // і повертає оновлену сутність.
+        return productRepository.save(existingProduct);
+    }
     @Transactional // Видалення має виконуватися в транзакції
     public void clearProductTable() {
         // Варіант 1: deleteAll() - може бути повільнішим для великих таблиць, видаляє сутності по черзі
