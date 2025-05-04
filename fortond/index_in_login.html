@@ -20,6 +20,7 @@
 <link rel="manifest" href="../assets/img/favicons/manifest.json">
 <link rel="mask-icon" href="../assets/img/favicons/safari-pinned-tab.svg" color="#712cf9">
 <link rel="icon" href="../assets/img/favicons/favicon.ico">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <meta name="theme-color" content="#712cf9">
 
 
@@ -372,570 +373,583 @@
   
   <script src="../assets/dist/js/bootstrap.bundle.min.js"></script>
   
-  
-  <script>
-    // --- Функції для навігації та анімації (залишаємо їх) ---
-    function navigateWithFade(target) {
-      document.body.classList.add('fade-out');
-      setTimeout(() => {
-        window.location.href = target;
-      }, 500);
-    }
-  
-    function fadeOutPage() {
-      const block = document.getElementById('fade-block');
-      if (block) {
-          block.classList.add('fade-out');
-          setTimeout(() => {
-              block.style.display = 'none';
-          }, 500);
-      }
-    }
-  
-    // Функція для перевірки стану аутентифікації та оновлення UI хедера
-    function updateAuthUI() {
-        const token = localStorage.getItem('authToken');
-        const authButtons = document.getElementById('auth-buttons');
-        const userDropdown = document.getElementById('user-dropdown');
-        const addCardButton = document.getElementById('add-card-button');
-  
-        if (token) {
-            // Користувач аутентифікований
-            if (authButtons) authButtons.style.display = 'none';
-            if (userDropdown) userDropdown.style.display = 'block'; // Показати дропдаун користувача
-            if (addCardButton) addCardButton.style.display = 'inline-block'; // Показати кнопку "Add New Card"
-        } else {
-            // Користувач не аутентифікований
-            if (authButtons) authButtons.style.display = 'block'; // Показати кнопки логіну/реєстрації
-            if (userDropdown) userDropdown.style.display = 'none'; // Приховати дропдаун користувача
-             if (addCardButton) addCardButton.style.display = 'none'; // Приховати кнопку "Add New Card"
-        }
-    }
-  
-    // Обробник для кнопки "Sign out"
-    const signOutLink = document.getElementById('sign-out-link');
-    if (signOutLink) {
-        signOutLink.addEventListener('click', function(e) {
-            e.preventDefault();
-            localStorage.removeItem('authToken'); // Видалити токен
-            updateAuthUI(); // Оновити хедер
-            navigateWithFade('index.html'); // Перенаправити на головну або сторінку логіну
-        });
-    }
-  
-  
-    // --- Функції для завантаження та відображення продуктів ---
-  
-    // Єдина функція для завантаження продуктів з бекенду з фільтрацією
-    async function fetchAndRenderProducts(filter) {
-        const container = document.getElementById('cardContainer');
-        if (container) {
-             container.innerHTML = '<p class="text-center">Завантаження продуктів...</p>'; // Індикатор завантаження
-        }
-  
-        let url = 'http://localhost:8080/products'; // Базовий URL для всіх продуктів
-  
-        if (filter && filter !== 'all') {
-            // Якщо вибрано фільтр за типом
-            url = `http://localhost:8080/products/by-type?type=${filter.toUpperCase()}`; // Перетворюємо фільтр у верхній регістр
-        }
-  
-        try {
-            const response = await fetch(url, {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json'
-                    // Для цих публічних GET ендпоінтів заголовок 'Authorization' не потрібен
-                }
-            });
-  
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`Помилка завантаження продуктів: ${response.status} ${errorText}`);
-            }
-  
-            const products = await response.json();
-            console.log("Отримано продуктів з бекенду:", products);
-  
-            renderCards(products); // Відображаємо отримані продукти
-  
-        } catch (error) {
-            console.error('Сталася помилка при завантаженні продуктів:', error);
-            if (container) {
-                container.innerHTML = `<p class="text-danger text-center">Не вдалося завантажити продукти: ${error.message}</p>`;
-            }
-        }
-    }
-  
-    // Функція для відображення карток на сторінці
-    function renderCards(products, saveToLocalStorage = true) {
-  const container = document.getElementById('cardContainer');
-  if (!container) return;
-
-  container.innerHTML = '';
-
-  if (!products || products.length === 0) {
-    container.innerHTML = '<p class="text-center">Продукти не знайдено.</p>';
-    return;
-  }
-
-  // Синхронізація з localStorage (якщо увімкнено)
-  if (saveToLocalStorage) {
-    const simplifiedCards = products.map(p => ({
-      title: p.originalTitle || 'Без назви',
-      text: p.description || 'Без опису'
-    }));
-    localStorage.setItem('cards', JSON.stringify(simplifiedCards));
-  }
-
-  products.forEach(product => {
-    const title = product.originalTitle || 'Без назви';
-    const description = product.description || 'Без опису';
-    const type = product.type || 'N/A';
-    const productId = product.id;
-
-    const cardHtml = `
-      <div class="col">
-        <div class="card shadow-sm">
-          <svg class="bd-placeholder-img card-img-top" width="100%" height="225">
-            <rect width="100%" height="100%" fill="#55595c"/>
-            <text x="50%" y="50%" fill="#eceeef" dy=".3em">${title}</text>
-          </svg>
-          <div class="card-body">
-            <p class="card-text">${description}</p>
-            <div class="d-flex justify-content-between align-items-center">
-              <div class="btn-group">
-                <button type="button" class="btn btn-sm btn-outline-secondary view-btn" data-product-id="${productId}">View</button>
-                <button type="button" class="btn btn-sm btn-outline-secondary edit-btn" data-product-id="${productId}">Edit</button>
-                <button type="button" class="btn btn-sm btn-outline-danger delete-btn" data-product-id="${productId}">Delete</button>
-              </div>
-              <small class="text-body-secondary">Тип: ${type}</small>
-            </div>
+  <div class="modal fade" id="commentModal" tabindex="-1" aria-labelledby="commentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="commentModalLabel">Коментар до продукту</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрити"></button>
+        </div>
+        <div class="modal-body">
+          <textarea class="form-control" id="commentInput" rows="4" placeholder="Введіть коментар..."></textarea>
+          <div id="commentsList" style="margin-top: 20px;">
+            <!-- Тут будуть відображатися старі коментарі -->
           </div>
         </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрити</button>
+          <button type="button" class="btn btn-primary" id="saveCommentBtn">Зберегти коментар</button>
+        </div>
       </div>
-    `;
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="..." crossorigin="anonymous"></script>
 
-    container.innerHTML += cardHtml;
-  });
+<script>
+  let currentProductId = null;
 
-  setupCardButtonListeners(); // Один обробник подій на всі кнопки
+  // --- Функції для навігації та анімації (залишаємо їх без змін) ---
+  function navigateWithFade(target) {
+    document.body.classList.add('fade-out');
+    setTimeout(() => {
+      window.location.href = target;
+    }, 500);
+  }
+
+  function fadeOutPage() {
+    const block = document.getElementById('fade-block');
+    if (block) {
+        block.classList.add('fade-out');
+        setTimeout(() => {
+            block.style.display = 'none';
+        }, 500);
     }
-    fetch('/products') // або інша адреса
-  .then(res => res.json())
-  .then(products => {
-    renderCards(products, true); // true = зберегти у localStorage
-  })
-  .catch(error => {
-    console.error("Помилка:", error);
-    renderCardsFromLocalStorage(); // fallback
-  });
-  function renderCardsFromLocalStorage() {
-  const saved = JSON.parse(localStorage.getItem('cards')) || [];
-  const products = saved.map((card, i) => ({
-    id: i,
-    originalTitle: card.title,
-    description: card.text,
-    type: 'N/A' // бо в localStorage типу немає
-  }));
-  renderCards(products, false); // не оновлюємо localStorage знову
-}
-     // Функція для налаштування обробників подій на кнопках карток
-    function setupCardButtonListeners() {
-        // Обробник для кнопок "Edit"
-        document.querySelectorAll('.edit-btn').forEach(button => {
-            button.addEventListener('click', async function() {
-                const productId = this.getAttribute('data-product-id');
-                console.log("Редагувати продукт з ID:", productId);
-                // Отримати дані продукту для редагування
-                await openEditModal(productId);
-            });
-        });
-  
-        // Обробник для кнопок "Delete"
-        document.querySelectorAll('.delete-btn').forEach(button => {
-            button.addEventListener('click', async function() {
-                const productId = this.getAttribute('data-product-id');
-                console.log("Видалити продукт з ID:", productId);
-                // Підтвердження видалення
-                if (confirm(`Ви впевнені, що хочете видалити продукт з ID ${productId}?`)) {
-                     await deleteProduct(productId);
-                }
-            });
-        });
-  
-        // Обробник для кнопок "View" (приклад)
-         document.querySelectorAll('.view-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                const productId = this.getAttribute('data-product-id');
-                console.log("Переглянути продукт з ID:", productId);
-                 // TODO: Реалізувати перехід на сторінку детального перегляду продукту
-                 alert(`Перегляд продукту з ID ${productId}. Ця функція поки не реалізована.`);
-            });
-         });
-    }
-  
-  
-    // --- Функції для модальних вікон та взаємодії з бекендом (Add/Edit) ---
-  
-    // Відкриття модального вікна ДОДАВАННЯ
-    const addCardModalElement = document.getElementById('addCardModal');
-    const addCardModal = addCardModalElement ? new bootstrap.Modal(addCardModalElement) : null;
-  
-    function openAddModal() {
-        if (addCardModal) {
-            // Очистити форму перед відкриттям
-            document.getElementById('addCardForm').reset();
-            addCardModal.show();
-        } else {
-             console.error("Модальне вікно додавання не знайдено.");
-        }
-    }
-  
-    // Обробник надсилання форми ДОДАВАННЯ
-    const addCardForm = document.getElementById('addCardForm');
-    if (addCardForm) {
-         addCardForm.addEventListener('submit', async function(e) {
-            e.preventDefault(); // Запобігаємо стандартній відправці форми
-            await addNewCard(); // Викликаємо асинхронну функцію додавання
-         });
-    }
-  
-  
-    // Асинхронна функція для ДОДАВАННЯ нового продукту через API
-    async function addNewCard() {
-        const titleInput = document.getElementById('addCardOriginalTitle');
-        const descriptionInput = document.getElementById('addCardDescription');
-        const typeSelect = document.getElementById('addCardType'); // Отримуємо елемент Select
-  
-        if (!titleInput || !descriptionInput || !typeSelect) {
-            console.error("Елементи форми додавання не знайдені.");
-            alert("Помилка: Не знайдено необхідні елементи форми.");
-            return;
-        }
-  
-        const title = titleInput.value.trim();
-        const description = descriptionInput.value.trim();
-        const type = typeSelect.value; // Отримуємо вибране значення типу
-  
-        if (!title || !description || !type) {
-            alert("Будь ласка, заповніть всі обов'язкові поля (Назва, Опис, Тип).");
-            return;
-        }
-  
-         // Перетворюємо тип у верхній регістр для відповідності ENUM на бекенді
-        const productType = type.toUpperCase();
-  
-  
-        // Дані для відправки на бекенд
-        const productData = {
-          originalTitle: title,
-          description: description,
-          type: productType,
-          // Можливо, потрібно додати інші поля, які є обов'язковими або мають значення за замовчуванням
-          reviewCount: 0, // При створенні зазвичай 0
-          averageRating: 0 // При створенні зазвичай 0
-          // Поля id, comments, creator, favoritedByUsers - генеруються/встановлюються на бекенді
-        };
-  
-        const token = localStorage.getItem('authToken'); // Отримуємо токен
-        if (!token) {
-             alert("Для додавання продукту потрібно увійти в систему.");
-             // Можна перенаправити на сторінку логіну
-             // navigateWithFade('logen-in.html');
-             return;
-        }
-  
-  
-        try {
-          const response = await fetch('http://localhost:8080/products', { // POST /products
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}` // Додаємо токен авторизації
-            },
-            body: JSON.stringify(productData) // Відправляємо об'єкт з коректними назвами
+  }
+
+  // --- Функції для аутентифікації та оновлення UI (залишаємо без змін) ---
+  function updateAuthUI() {
+      const token = localStorage.getItem('authToken');
+      const authButtons = document.getElementById('auth-buttons');
+      const userDropdown = document.getElementById('user-dropdown');
+      const addCardButton = document.getElementById('add-card-button');
+
+      // Якщо елемент user-dropdown не знайдено, можливо, його ID інший
+      // Перевірте ID у вашому HTML для <div class="dropdown text-end">
+      const userDropdownContainer = document.querySelector('.dropdown.text-end'); // Спробуємо знайти за класом
+
+      if (token) {
+          // Користувач аутентифікований
+          if (authButtons) authButtons.style.display = 'none';
+          // if (userDropdown) userDropdown.style.display = 'block'; // Використовуйте це, якщо ID правильний
+           if (userDropdownContainer) userDropdownContainer.style.display = 'block'; // Альтернатива за класом
+          if (addCardButton) addCardButton.style.display = 'inline-block'; // Показати кнопку "Add New Card"
+      } else {
+          // Користувач не аутентифікований
+          if (authButtons) authButtons.style.display = 'block'; // Показати кнопки логіну/реєстрації
+          // if (userDropdown) userDropdown.style.display = 'none'; // Приховати дропдаун користувача
+           if (userDropdownContainer) userDropdownContainer.style.display = 'none'; // Альтернатива за класом
+           if (addCardButton) addCardButton.style.display = 'none'; // Приховати кнопку "Add New Card"
+      }
+  }
+
+
+  const signOutLink = document.querySelector('.dropdown-item[onclick*="index.html"]'); // Знаходимо по onclick
+  if (signOutLink) {
+      signOutLink.addEventListener('click', function(e) {
+          e.preventDefault();
+          localStorage.removeItem('authToken'); // Видалити токен
+          updateAuthUI(); // Оновити хедер
+          navigateWithFade('index.html'); // Перенаправити на головну або сторінку логіну
+      });
+  }
+
+  // --- Функції для завантаження та відображення продуктів (залишаємо без змін) ---
+  async function fetchAndRenderProducts(filter) {
+      const container = document.getElementById('cardContainer');
+      if (container) {
+           container.innerHTML = '<p class="text-center">Завантаження продуктів...</p>';
+      }
+
+      let url = 'http://localhost:8080/products';
+
+      if (filter && filter !== 'all') {
+          url = `http://localhost:8080/products/by-type?type=${filter.toUpperCase()}`;
+      }
+
+      try {
+          const response = await fetch(url, {
+              method: 'GET',
+              headers: { 'Accept': 'application/json' }
           });
-  
+
           if (!response.ok) {
-               // Обробка помилок бекенду (наприклад, валідація 400, 401/403, 500)
-              const errorBody = await response.text(); // Читаємо тіло відповіді (може бути JSON або текст)
-              let errorMessage = `Помилка створення продукту: ${response.status}`;
-              try {
-                  // Спробувати розпарсити як JSON (якщо бекенд повертає AppError або інший JSON)
-                  const errorJson = JSON.parse(errorBody);
-                   if (errorJson.message) {
-                       errorMessage += ` - ${errorJson.message}`;
-                   } else {
-                       errorMessage += ` - ${errorBody}`; // Якщо JSON, але без message поля
-                   }
-              } catch (e) {
-                  // Якщо тіло відповіді не JSON, використовувати його як є
-                  errorMessage += ` - ${errorBody}`;
+              const errorText = await response.text();
+              throw new Error(`Помилка завантаження продуктів: ${response.status} ${errorText}`);
+          }
+
+          const products = await response.json();
+          renderCards(products);
+
+      } catch (error) {
+          console.error('Сталася помилка при завантаженні продуктів:', error);
+          if (container) {
+              container.innerHTML = `<p class="text-danger text-center">Не вдалося завантажити продукти: ${error.message}</p>`;
+          }
+          // Спробувати завантажити з localStorage при помилці
+          console.log("Спроба завантажити картки з localStorage...");
+          renderCardsFromLocalStorage();
+      }
+  }
+
+  function renderCards(products, saveToLocalStorage = true) {
+      const container = document.getElementById('cardContainer');
+      if (!container) return;
+
+      container.innerHTML = '';
+
+      if (!products || products.length === 0) {
+          container.innerHTML = '<p class="text-center">Продукти не знайдено.</p>';
+          return;
+      }
+
+      // Синхронізація з localStorage ТІЛЬКИ ЯКЩО saveToLocalStorage = true
+      if (saveToLocalStorage) {
+           console.log("Оновлення localStorage картками з бекенду...");
+          const simplifiedCards = products.map(p => ({
+              id: p.id, // Важливо зберегти ID для зв'язку з коментарями
+              title: p.originalTitle || 'Без назви',
+              text: p.description || 'Без опису',
+              type: p.type || 'N/A'
+          }));
+          localStorage.setItem('cards', JSON.stringify(simplifiedCards));
+      } else {
+          console.log("Пропуск збереження карток в localStorage (завантажено звідти).");
+      }
+
+
+      products.forEach(product => {
+          const title = product.originalTitle || 'Без назви';
+          const description = product.description || 'Без опису';
+          const type = product.type || 'N/A';
+          const productId = product.id; // Використовуємо ID з продукту
+
+          const cardHtml = `
+          <div class="col">
+              <div class="card shadow-sm">
+              <svg class="bd-placeholder-img card-img-top" width="100%" height="225" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: ${title}" preserveAspectRatio="xMidYMid slice" focusable="false"><title>${title}</title><rect width="100%" height="100%" fill="#55595c"/><text x="50%" y="50%" fill="#eceeef" dy=".3em">${title}</text></svg>
+              <div class="card-body">
+                  <p class="card-text">${description}</p>
+                  <div class="d-flex justify-content-between align-items-center">
+                  <div class="btn-group">
+                      <button type="button" class="btn btn-sm btn-outline-secondary view-btn" data-product-id="${productId}">View</button>
+                      <button type="button" class="btn btn-sm btn-outline-secondary edit-btn" data-product-id="${productId}">Edit</button>
+                      <button type="button" class="btn btn-sm btn-outline-danger delete-btn" data-product-id="${productId}">Delete</button>
+                  </div>
+                  <small class="text-body-secondary">Тип: ${type}</small>
+                  </div>
+              </div>
+              </div>
+          </div>
+          `;
+          container.innerHTML += cardHtml;
+      });
+
+      setupCardButtonListeners();
+  }
+
+  function renderCardsFromLocalStorage() {
+      console.log("Відображення карток з localStorage.");
+      const savedCardsJson = localStorage.getItem('cards');
+      if (!savedCardsJson) {
+          console.log("localStorage порожній, немає чого відображати.");
+           const container = document.getElementById('cardContainer');
+           if(container) container.innerHTML = '<p class="text-center">Не вдалося завантажити продукти. Перевірте з\'єднання.</p>';
+          return;
+      }
+      try {
+           const savedCards = JSON.parse(savedCardsJson) || [];
+          // Перетворюємо збережені дані назад у формат, схожий на відповідь API
+          const products = savedCards.map(card => ({
+               id: card.id, // Використовуємо збережений ID
+               originalTitle: card.title,
+               description: card.text,
+               type: card.type
+           }));
+          renderCards(products, false); // false - не зберігати знову в localStorage
+      } catch (error) {
+          console.error("Помилка парсингу карток з localStorage:", error);
+           const container = document.getElementById('cardContainer');
+           if(container) container.innerHTML = '<p class="text-center text-danger">Помилка читання збережених даних.</p>';
+      }
+  }
+
+
+  // --- Нова функція для відображення списку коментарів ---
+  function displayComments(productId) {
+      const commentsListDiv = document.getElementById('commentsList');
+      if (!commentsListDiv) return;
+
+      commentsListDiv.innerHTML = ''; // Очистити попередній список
+
+      const commentsKey = `comments_${productId}`; // Ключ для зберігання масиву коментарів
+      const savedCommentsJson = localStorage.getItem(commentsKey);
+      const comments = savedCommentsJson ? JSON.parse(savedCommentsJson) : [];
+
+      if (comments.length === 0) {
+          commentsListDiv.innerHTML = '<p class="text-muted">Коментарів ще немає.</p>';
+      } else {
+          comments.forEach(commentText => {
+              const commentElement = document.createElement('div');
+              commentElement.classList.add('alert', 'alert-secondary', 'p-2', 'mt-2'); // Стилізація коментаря
+              commentElement.textContent = commentText;
+              commentsListDiv.appendChild(commentElement);
+          });
+      }
+  }
+
+  // --- Оновлена функція налаштування обробників подій ---
+  function setupCardButtonListeners() {
+      const commentModalEl = document.getElementById('commentModal');
+      const commentModal = commentModalEl ? new bootstrap.Modal(commentModalEl) : null;
+
+      // View (тепер відкриває коментарі)
+      document.querySelectorAll('.view-btn').forEach(button => {
+          button.addEventListener('click', () => {
+              currentProductId = button.getAttribute('data-product-id');
+              console.log("Відкрито коментарі для продукту ID:", currentProductId);
+
+              if (commentModal) {
+                  // Очистити поле введення перед показом
+                  const commentInput = document.getElementById('commentInput');
+                  if(commentInput) commentInput.value = '';
+
+                  // Відобразити існуючі коментарі
+                  displayComments(currentProductId);
+
+                  commentModal.show();
+              } else {
+                  console.error("Модальне вікно коментарів не знайдено!");
               }
-              throw new Error(errorMessage);
+          });
+      });
+
+      // Edit
+      document.querySelectorAll('.edit-btn').forEach(button => {
+          button.addEventListener('click', async function () {
+              const productId = this.getAttribute('data-product-id');
+              console.log("Редагувати продукт з ID:", productId);
+              await openEditModal(productId); // Переконайся, що ця функція існує і працює
+          });
+      });
+
+      // Delete
+      document.querySelectorAll('.delete-btn').forEach(button => {
+          button.addEventListener('click', async function () {
+              const productId = this.getAttribute('data-product-id');
+              if (confirm(`Ви впевнені, що хочете видалити продукт з ID ${productId}?`)) {
+                  await deleteProduct(productId); // Переконайся, що ця функція існує і працює
+              }
+          });
+      });
+  }
+
+  // --- Оновлений обробник кнопки збереження коментаря ---
+  const saveCommentBtn = document.getElementById('saveCommentBtn');
+  if (saveCommentBtn) {
+      saveCommentBtn.addEventListener('click', () => {
+          const commentInput = document.getElementById('commentInput');
+          const commentText = commentInput.value.trim();
+
+          if (commentText && currentProductId !== null) {
+              const commentsKey = `comments_${currentProductId}`;
+              const savedCommentsJson = localStorage.getItem(commentsKey);
+              let comments = savedCommentsJson ? JSON.parse(savedCommentsJson) : [];
+
+              comments.push(commentText); // Додати новий коментар до масиву
+
+              localStorage.setItem(commentsKey, JSON.stringify(comments)); // Зберегти оновлений масив
+
+              // Оновити відображення списку коментарів у модальному вікні
+              displayComments(currentProductId);
+
+              // Очистити поле введення
+              commentInput.value = '';
+
+              // Не закривати модальне вікно автоматично, щоб користувач бачив список
+              // Якщо потрібно закривати, розкоментуйте наступні рядки:
+              // const commentModalEl = document.getElementById('commentModal');
+              // const modal = bootstrap.Modal.getInstance(commentModalEl);
+              // if (modal) modal.hide();
+
+          } else if (!commentText) {
+               alert("Будь ласка, введіть коментар.");
+          } else {
+              console.error("Не вдалося зберегти коментар: ID продукту не встановлено.");
+               alert("Сталася помилка. Неможливо зберегти коментар.");
           }
-  
-          // Успішне створення (статус 201 Created)
-          alert('Продукт успішно додано!');
-          if (addCardModal) addCardModal.hide(); // Сховати модалку додавання
-          // Оновлюємо список карток після успіху. Можна перезавантажити всі, або лише ті, що відповідають поточному фільтру.
-          // Наприклад, викликаємо з поточним активним фільтром
-          const activeFilterLink = document.querySelector('#filter-nav .nav-link.active');
-          const currentFilter = activeFilterLink ? activeFilterLink.getAttribute('data-filter') : 'all';
-          fetchAndRenderProducts(currentFilter);
-  
-  
-        } catch (error) {
-          console.error('Помилка при додаванні продукту:', error);
-          alert('Не вдалося додати продукт: ' + error.message);
+      });
+  }
+
+
+  // --- Функції для модальних вікон та CRUD операцій (Add/Edit/Delete) ---
+  // Переконайтесь, що функції openAddModal, addNewCard, openEditModal, saveEditedCard, deleteProduct
+  // існують у вашому коді і працюють коректно з вашим бекендом та localStorage.
+  // Я залишу тут заглушки, щоб показати, де вони мають бути.
+
+   // Відкриття модального вікна ДОДАВАННЯ
+  const addCardModalElement = document.getElementById('addCardModal');
+  const addCardModal = addCardModalElement ? new bootstrap.Modal(addCardModalElement) : null;
+
+  function openAddModal() {
+      if (addCardModal) {
+          document.getElementById('addCardForm').reset();
+          addCardModal.show();
+      } else {
+           console.error("Модальне вікно додавання не знайдено.");
+      }
+  }
+
+  // Обробник надсилання форми ДОДАВАННЯ
+  const addCardForm = document.getElementById('addCardForm');
+  if (addCardForm) {
+       addCardForm.addEventListener('submit', async function(e) {
+          e.preventDefault();
+          await addNewCard();
+       });
+  }
+
+   // Асинхронна функція для ДОДАВАННЯ нового продукту через API
+  async function addNewCard() {
+      const titleInput = document.getElementById('addCardOriginalTitle');
+      const descriptionInput = document.getElementById('addCardDescription');
+      const typeSelect = document.getElementById('addCardType');
+
+      if (!titleInput || !descriptionInput || !typeSelect) {
+          console.error("Елементи форми додавання не знайдені.");
+          alert("Помилка: Не знайдено необхідні елементи форми.");
+          return;
+      }
+
+      const title = titleInput.value.trim();
+      const description = descriptionInput.value.trim();
+      const type = typeSelect.value;
+
+      if (!title || !description || !type) {
+          alert("Будь ласка, заповніть всі обов'язкові поля (Назва, Опис, Тип).");
+          return;
+      }
+
+      const productType = type.toUpperCase();
+      const productData = {
+        originalTitle: title,
+        description: description,
+        type: productType,
+        reviewCount: 0,
+        averageRating: 0
+      };
+
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+           alert("Для додавання продукту потрібно увійти в систему.");
+           return;
+      }
+
+      try {
+        const response = await fetch('http://localhost:8080/products', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(productData)
+        });
+
+        if (!response.ok) {
+            const errorBody = await response.text();
+            let errorMessage = `Помилка створення продукту: ${response.status}`;
+            try {
+                const errorJson = JSON.parse(errorBody);
+                 if (errorJson.message) errorMessage += ` - ${errorJson.message}`;
+                 else errorMessage += ` - ${errorBody}`;
+            } catch (e) { errorMessage += ` - ${errorBody}`; }
+            throw new Error(errorMessage);
         }
-    }
-  
-  
-    // --- Функції для модального вікна РЕДАГУВАННЯ ---
-  
-    const editCardModalElement = document.getElementById('editCardModal');
-    const editCardModal = editCardModalElement ? new bootstrap.Modal(editCardModalElement) : null;
-    const editCardForm = document.getElementById('editCardForm');
-    const editCardIdInput = document.getElementById('editCardId');
-    const editCardOriginalTitleInput = document.getElementById('editCardOriginalTitle');
-    const editCardDescriptionInput = document.getElementById('editCardDescription');
-    const editCardTypeSelect = document.getElementById('editCardType'); // Отримуємо елемент Select для типу
-  
-  
-    // Асинхронна функція для відкриття модального вікна РЕДАГУВАННЯ та завантаження даних
-    async function openEditModal(productId) {
-         if (!editCardModal || !editCardIdInput || !editCardOriginalTitleInput || !editCardDescriptionInput || !editCardTypeSelect) {
-             console.error("Елементи модального вікна редагування не знайдені.");
-             return;
-         }
-  
-         const token = localStorage.getItem('authToken'); // Отримуємо токен
-          if (!token) {
-              alert("Для редагування продукту потрібно увійти в систему.");
-              // Можна перенаправити на сторінку логіну
-              // navigateWithFade('logen-in.html');
-              return;
-         }
-  
-  
-         try {
-             // Завантажуємо дані конкретного продукту з бекенду за ID
-             const response = await fetch(`http://localhost:8080/products/${productId}`, { // GET /products/{id}
-                 method: 'GET',
-                 headers: {
-                     'Accept': 'application/json',
-                      'Authorization': `Bearer ${token}` // GET /products/{id} може вимагати аутентифікації
-                 }
-             });
-  
-             if (!response.ok) {
-                  const errorBody = await response.text();
-                  throw new Error(`Помилка завантаження даних продукту: ${response.status} ${errorBody}`);
-             }
-  
-             const productData = await response.json();
-             console.log("Отримано дані продукту для редагування:", productData);
-  
-  
-             // Заповнюємо поля форми редагування отриманими даними
-             editCardIdInput.value = productData.id; // Зберігаємо ID продукту
-             editCardOriginalTitleInput.value = productData.originalTitle || '';
-             editCardDescriptionInput.value = productData.description || '';
-             // Встановлюємо вибране значення для типу
-             if (productData.type) {
-                 editCardTypeSelect.value = productData.type.toUpperCase(); // Встановлюємо значення в SELECT
-             } else {
-                 editCardTypeSelect.value = ''; // Встановлюємо пусте значення, якщо тип не вказано
-             }
-  
-  
-             // Відкриваємо модальне вікно редагування
-             editCardModal.show();
-  
-         } catch (error) {
-             console.error('Сталася помилка при завантаженні даних продукту для редагування:', error);
-             alert('Не вдалося завантажити дані продукту для редагування: ' + error.message);
-         }
-    }
-  
-    // Обробник надсилання форми РЕДАГУВАННЯ
-    if (editCardForm) {
-         editCardForm.addEventListener('submit', async function(e) {
-            e.preventDefault(); // Запобігаємо стандартній відправці форми
-            await saveEditedCard(); // Викликаємо асинхронну функцію збереження
-         });
-    }
-  
-  
-    // Асинхронна функція для ЗБЕРЕЖЕННЯ РЕДАГОВАНОГО продукту через API
-    async function saveEditedCard() {
-         const productId = editCardIdInput.value; // Отримуємо ID з прихованого поля
-         const title = editCardOriginalTitleInput.value.trim(); // Отримуємо дані з полів редагування
-         const description = editCardDescriptionInput.value.trim();
-         const type = editCardTypeSelect.value; // Отримуємо вибране значення типу
-  
-         if (!productId) {
-              console.error("Не визначено ID продукту для збереження змін.");
-              alert("Помилка: Не визначено, який продукт оновлювати.");
-              return;
-         }
-          if (!title || !description || !type) {
-              alert("Будь ласка, заповніть всі обов'язкові поля (Назва, Опис, Тип) для редагування.");
-              return;
-          }
-  
-         // Перетворюємо тип у верхній регістр
-         const productType = type.toUpperCase();
-  
-  
-         // Дані для відправки на бекенд
-         const productData = {
-            // Відправляємо оновлені поля
-           originalTitle: title,
-           description: description,
-           type: productType
-           // Не надсилаємо ID в тілі запиту
-           // Можливо, потрібно додати інші поля, якщо вони редагуються (наприклад, reviewCount, averageRating)
-         };
-  
-          const token = localStorage.getItem('authToken'); // Отримуємо токен
-          if (!token) {
-              alert("Для оновлення продукту потрібно увійти в систему.");
-               // navigateWithFade('logen-in.html');
-              return;
-         }
-  
-  
-         try {
-             const response = await fetch(`http://localhost:8080/products/${productId}`, { // PUT /products/{id}
-                 method: 'PUT',
-                 headers: {
-                     'Content-Type': 'application/json',
-                     'Authorization': `Bearer ${token}` // Додаємо токен авторизації
-                 },
-                 body: JSON.stringify(productData) // Відправляємо об'єкт з коректними назвами
-             });
-  
-             if (!response.ok) {
-                  // Обробка помилок бекенду (404, 400, 403, 500)
-                  const errorBody = await response.text(); // Читаємо тіло відповіді
-                  let errorMessage = `Помилка оновлення продукту: ${response.status}`;
-                  try {
-                       const errorJson = JSON.parse(errorBody);
-                       if (errorJson.message) {
-                           errorMessage += ` - ${errorJson.message}`;
-                       } else {
-                           errorMessage += ` - ${errorBody}`;
-                       }
-                  } catch (e) {
-                      errorMessage += ` - ${errorBody}`;
-                  }
-                  throw new Error(errorMessage);
-             }
-  
-             // Успішне оновлення (статус 200 OK)
-             alert('Продукт успішно оновлено!');
-             if (editCardModal) editCardModal.hide(); // Сховати модалку редагування
-  
-             // Оновлюємо список карток після успіху
-             const activeFilterLink = document.querySelector('#filter-nav .nav-link.active');
-             const currentFilter = activeFilterLink ? activeFilterLink.getAttribute('data-filter') : 'all';
-             fetchAndRenderProducts(currentFilter);
-  
-  
-         } catch (error) {
-             console.error('Помилка при оновленні продукту:', error);
-             alert('Не вдалося оновити продукт: ' + error.message);
-         }
-    }
-  
-  
-    // Асинхронна функція для ВИДАЛЕННЯ продукту через API
-    async function deleteProduct(productId) {
-         const token = localStorage.getItem('authToken'); // Отримуємо токен
-          if (!token) {
-              alert("Для видалення продукту потрібно увійти в систему.");
-               // navigateWithFade('logen-in.html');
-              return;
-         }
-  
-         try {
-             const response = await fetch(`http://localhost:8080/products/${productId}`, { // DELETE /products/{id}
-                 method: 'DELETE',
-                 headers: {
-                     'Authorization': `Bearer ${token}` // Додаємо токен авторизації
-                 }
-             });
-  
-             if (!response.ok) {
-                   const errorBody = await response.text(); // Читаємо тіло відповіді
-                  let errorMessage = `Помилка видалення продукту: ${response.status}`;
-                   try {
-                       const errorJson = JSON.parse(errorBody);
-                       if (errorJson.message) {
-                           errorMessage += ` - ${errorJson.message}`;
-                       } else {
-                           errorMessage += ` - ${errorBody}`;
-                       }
-                  } catch (e) {
-                      errorMessage += ` - ${errorBody}`;
-                  }
-                 throw new Error(errorMessage);
-             }
-  
-             // Успішне видалення (статус 200 OK або 204 No Content)
-             alert('Продукт успішно видалено!');
-  
-             // Оновлюємо список карток після видалення
-             const activeFilterLink = document.querySelector('#filter-nav .nav-link.active');
-             const currentFilter = activeFilterLink ? activeFilterLink.getAttribute('data-filter') : 'all';
-             fetchAndRenderProducts(currentFilter);
-  
-         } catch (error) {
-              console.error('Сталася помилка при видаленні продукту:', error);
-             alert('Не вдалося видалити продукт: ' + error.message);
-         }
-    }
-  
-  
-    // --- Ініціалізація при завантаженні сторінки ---
-    document.addEventListener("DOMContentLoaded", function () {
-      // Оновлюємо UI хедера на основі стану аутентифікації
+
+        alert('Продукт успішно додано!');
+        if (addCardModal) addCardModal.hide();
+        const activeFilterLink = document.querySelector('#filter-nav .nav-link.active');
+        const currentFilter = activeFilterLink ? activeFilterLink.getAttribute('data-filter') : 'all';
+        await fetchAndRenderProducts(currentFilter); // Використовуємо await тут
+
+      } catch (error) {
+        console.error('Помилка при додаванні продукту:', error);
+        alert('Не вдалося додати продукт: ' + error.message);
+      }
+  }
+
+   // --- Функції для модального вікна РЕДАГУВАННЯ ---
+  const editCardModalElement = document.getElementById('editCardModal');
+  const editCardModal = editCardModalElement ? new bootstrap.Modal(editCardModalElement) : null;
+  const editCardForm = document.getElementById('editCardForm');
+  const editCardIdInput = document.getElementById('editCardId');
+  const editCardOriginalTitleInput = document.getElementById('editCardOriginalTitle');
+  const editCardDescriptionInput = document.getElementById('editCardDescription');
+  const editCardTypeSelect = document.getElementById('editCardType');
+
+  async function openEditModal(productId) {
+       if (!editCardModal || !editCardIdInput || !editCardOriginalTitleInput || !editCardDescriptionInput || !editCardTypeSelect) {
+           console.error("Елементи модального вікна редагування не знайдені.");
+           return;
+       }
+       const token = localStorage.getItem('authToken');
+        if (!token) {
+            alert("Для редагування продукту потрібно увійти в систему.");
+            return;
+       }
+       try {
+           const response = await fetch(`http://localhost:8080/products/${productId}`, {
+               method: 'GET',
+               headers: {
+                   'Accept': 'application/json',
+                    'Authorization': `Bearer ${token}`
+               }
+           });
+           if (!response.ok) {
+                const errorBody = await response.text();
+                throw new Error(`Помилка завантаження даних продукту: ${response.status} ${errorBody}`);
+           }
+           const productData = await response.json();
+           editCardIdInput.value = productData.id;
+           editCardOriginalTitleInput.value = productData.originalTitle || '';
+           editCardDescriptionInput.value = productData.description || '';
+           if (productData.type) {
+               editCardTypeSelect.value = productData.type.toUpperCase();
+           } else {
+               editCardTypeSelect.value = '';
+           }
+           editCardModal.show();
+       } catch (error) {
+           console.error('Сталася помилка при завантаженні даних продукту для редагування:', error);
+           alert('Не вдалося завантажити дані продукту: ' + error.message);
+       }
+  }
+
+   // Обробник надсилання форми РЕДАГУВАННЯ
+  if (editCardForm) {
+       editCardForm.addEventListener('submit', async function(e) {
+          e.preventDefault();
+          await saveEditedCard();
+       });
+  }
+
+  async function saveEditedCard() {
+       const productId = editCardIdInput.value;
+       const title = editCardOriginalTitleInput.value.trim();
+       const description = editCardDescriptionInput.value.trim();
+       const type = editCardTypeSelect.value;
+
+       if (!productId) {
+            alert("Помилка: Не визначено, який продукт оновлювати.");
+            return;
+       }
+        if (!title || !description || !type) {
+            alert("Будь ласка, заповніть всі поля.");
+            return;
+        }
+       const productType = type.toUpperCase();
+       const productData = {
+         originalTitle: title,
+         description: description,
+         type: productType
+       };
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+            alert("Для оновлення продукту потрібно увійти в систему.");
+            return;
+       }
+       try {
+           const response = await fetch(`http://localhost:8080/products/${productId}`, {
+               method: 'PUT',
+               headers: {
+                   'Content-Type': 'application/json',
+                   'Authorization': `Bearer ${token}`
+               },
+               body: JSON.stringify(productData)
+           });
+           if (!response.ok) {
+                const errorBody = await response.text();
+                let errorMessage = `Помилка оновлення продукту: ${response.status}`;
+                try {
+                     const errorJson = JSON.parse(errorBody);
+                     if (errorJson.message) errorMessage += ` - ${errorJson.message}`;
+                     else errorMessage += ` - ${errorBody}`;
+                } catch (e) { errorMessage += ` - ${errorBody}`; }
+                throw new Error(errorMessage);
+           }
+           alert('Продукт успішно оновлено!');
+           if (editCardModal) editCardModal.hide();
+           const activeFilterLink = document.querySelector('#filter-nav .nav-link.active');
+           const currentFilter = activeFilterLink ? activeFilterLink.getAttribute('data-filter') : 'all';
+           await fetchAndRenderProducts(currentFilter); // Використовуємо await тут
+
+       } catch (error) {
+           console.error('Помилка при оновленні продукту:', error);
+           alert('Не вдалося оновити продукт: ' + error.message);
+       }
+  }
+
+  // Асинхронна функція для ВИДАЛЕННЯ продукту через API
+  async function deleteProduct(productId) {
+       const token = localStorage.getItem('authToken');
+        if (!token) {
+            alert("Для видалення продукту потрібно увійти в систему.");
+            return;
+       }
+       try {
+           const response = await fetch(`http://localhost:8080/products/${productId}`, {
+               method: 'DELETE',
+               headers: { 'Authorization': `Bearer ${token}` }
+           });
+           if (!response.ok) {
+                 const errorBody = await response.text();
+                let errorMessage = `Помилка видалення продукту: ${response.status}`;
+                 try {
+                     const errorJson = JSON.parse(errorBody);
+                     if (errorJson.message) errorMessage += ` - ${errorJson.message}`;
+                     else errorMessage += ` - ${errorBody}`;
+                } catch (e) { errorMessage += ` - ${errorBody}`; }
+               throw new Error(errorMessage);
+           }
+           alert('Продукт успішно видалено!');
+           // Видалити коментарі для цього продукту з localStorage
+           localStorage.removeItem(`comments_${productId}`);
+
+           const activeFilterLink = document.querySelector('#filter-nav .nav-link.active');
+           const currentFilter = activeFilterLink ? activeFilterLink.getAttribute('data-filter') : 'all';
+           await fetchAndRenderProducts(currentFilter); // Використовуємо await тут
+
+       } catch (error) {
+            console.error('Сталася помилка при видаленні продукту:', error);
+           alert('Не вдалося видалити продукт: ' + error.message);
+       }
+  }
+
+
+  // --- Ініціалізація при завантаженні сторінки ---
+  document.addEventListener("DOMContentLoaded", function () {
       updateAuthUI();
-  
-      // Налаштовуємо обробники кліків на фільтрах
+
+      // Обробники фільтрів
       const navLinks = document.querySelectorAll("#filter-nav .nav-link");
       navLinks.forEach(link => {
-        link.addEventListener("click", function (e) {
-          e.preventDefault();
-  
-          navLinks.forEach(l => l.classList.remove("active"));
-          this.classList.add("active");
-  
-          const filter = this.getAttribute("data-filter");
-          console.log("Вибраний фільтр: ", filter);
-  
-          // Завантажуємо продукти з бекенду з вибраним фільтром
-          fetchAndRenderProducts(filter);
-        });
+          link.addEventListener("click", function (e) {
+              e.preventDefault();
+              navLinks.forEach(l => l.classList.remove("active"));
+              this.classList.add("active");
+              const filter = this.getAttribute("data-filter");
+              fetchAndRenderProducts(filter); // Завантаження з бекенду
+          });
       });
-  
-       // Завантажуємо всі продукти при першому завантаженні сторінки
-       // Викликаємо з невеликою затримкою, щоб анімація fade-out в body встигла початись, якщо вона є.
-      setTimeout(() => {
+
+      // Початкове завантаження всіх продуктів
+       setTimeout(() => {
+           // Спочатку спробуємо завантажити з бекенду
           fetchAndRenderProducts('all');
-      }, 50); // Затримка 50 мілісекунд
-  
-  
-      // TODO: Можливо, додати логіку для початкового стану кнопки "Want more options?" (#fade-block)
-      // Якщо користувач аутентифікований, можна одразу приховати цей блок.
-    });
-  
-    // Важливо: bootstrap.bundle.min.js вже завантажується перед цим скриптом, тому bootstrap доступний.
-    // Видаляємо window.onload = fetchAndRenderCards; оскільки DOMContentLoaded використовується вище.
-  
-  </script>
+       }, 50);
+  });
+
+</script>
   </body>
   </html>
