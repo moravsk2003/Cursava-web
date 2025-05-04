@@ -399,6 +399,7 @@
 
 <script>
   let currentProductId = null;
+  const API_BASE_URL = 'http://localhost:8080';
 
   // --- Функції для навігації та анімації (залишаємо їх без змін) ---
   function navigateWithFade(target) {
@@ -575,120 +576,231 @@
       }
   }
 
+// Функція для завантаження коментарів з бекенду
+async function fetchComments(productId) {
+        const commentsListDiv = document.getElementById('commentsList');
+        commentsListDiv.innerHTML = '<p class="text-muted">Завантаження коментарів...</p>';
+        try {
+            const response = await fetch(`${API_BASE_URL}/comments/product/${productId}`);
+            if (!response.ok) {
+                throw new Error(`Помилка завантаження коментарів: ${response.status}`);
+            }
+            const comments = await response.json();
+            displayComments(comments); // Передаємо завантажені коментарі для відображення
+        } catch (error) {
+            console.error('Не вдалося завантажити коментарі:', error);
+            commentsListDiv.innerHTML = '<p class="text-danger">Не вдалося завантажити коментарі.</p>';
+        }
+    }
+      // Функція для відображення списку коментарів
+      function displayComments(comments) {
+        const commentsListDiv = document.getElementById('commentsList');
+        commentsListDiv.innerHTML = ''; // Очистити
 
-  // --- Нова функція для відображення списку коментарів ---
-  function displayComments(productId) {
-      const commentsListDiv = document.getElementById('commentsList');
-      if (!commentsListDiv) return;
+        if (!comments || comments.length === 0) {
+            commentsListDiv.innerHTML = '<p class="text-muted">Коментарів ще немає.</p>';
+        } else {
+            comments.forEach(comment => {
+                const commentElement = document.createElement('div');
+                commentElement.classList.add('mb-2', 'p-2', 'border', 'rounded'); // Стилізація
 
-      commentsListDiv.innerHTML = ''; // Очистити попередній список
+                // Додаємо текст коментаря
+                const textElement = document.createElement('p');
+                textElement.textContent = comment.text;
+                textElement.classList.add('mb-1');
+                commentElement.appendChild(textElement);
 
-      const commentsKey = `comments_${productId}`; // Ключ для зберігання масиву коментарів
-      const savedCommentsJson = localStorage.getItem(commentsKey);
-      const comments = savedCommentsJson ? JSON.parse(savedCommentsJson) : [];
+                // Додаємо інформацію про автора та дату (якщо є)
+                const metaElement = document.createElement('small');
+                metaElement.classList.add('text-muted');
+                let metaInfo = '';
+                // Приклад: Якщо ваш Comment має поле author з полем username
+                // if (comment.author && comment.author.username) {
+                //     metaInfo += `Автор: ${comment.author.username}`;
+                // } else if (comment.authorId) { // Якщо є тільки authorId
+                //      metaInfo += `Автор ID: ${comment.authorId}`;
+                // }
+                // Приклад: Якщо ваш Comment має поле createdAt
+                // if (comment.createdAt) {
+                //     metaInfo += ` | Дата: ${new Date(comment.createdAt).toLocaleString()}`;
+                // }
+                metaElement.textContent = metaInfo || 'Інформація про автора/дату відсутня'; // Заглушка
+                commentElement.appendChild(metaElement);
 
-      if (comments.length === 0) {
-          commentsListDiv.innerHTML = '<p class="text-muted">Коментарів ще немає.</p>';
-      } else {
-          comments.forEach(commentText => {
-              const commentElement = document.createElement('div');
-              commentElement.classList.add('alert', 'alert-secondary', 'p-2', 'mt-2'); // Стилізація коментаря
-              commentElement.textContent = commentText;
-              commentsListDiv.appendChild(commentElement);
-          });
-      }
-  }
+                // Додаємо кнопку видалення (якщо потрібно і якщо це коментар поточного користувача)
+                // Примітка: Потрібно порівнювати ID автора коментаря з ID поточного користувача
+                const currentUserId = getCurrentUserId();
+                // Припустимо, ваш Comment має поле authorId
+                // if (comment.authorId && comment.authorId === currentUserId) {
+                    const deleteButton = document.createElement('button');
+                    deleteButton.textContent = 'Видалити';
+                    deleteButton.classList.add('btn', 'btn-sm', 'btn-outline-danger', 'ms-2', 'float-end');
+                    deleteButton.setAttribute('data-comment-id', comment.id); // Зберігаємо ID коментаря
+                    deleteButton.onclick = () => deleteCommentFrontend(comment.id); // Додаємо обробник
+                    commentElement.appendChild(deleteButton);
+                // }
 
+                commentsListDiv.appendChild(commentElement);
+            });
+        }
+    }
+ // Функція для надсилання нового коментаря на бекенд
+ async function addComment(productId, commentText, authorId) {
+        const commentRequest = {
+            text: commentText,
+            authorId: authorId // !!! НЕБЕЗПЕЧНО В РЕАЛЬНОМУ ДОДАТКУ !!!
+        };
+        const token = localStorage.getItem('authToken'); // Потрібен токен для авторизації запиту
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/comments/product/${productId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` // Додаємо токен, якщо потрібно
+                },
+                body: JSON.stringify(commentRequest)
+            });
+
+            if (!response.ok) {
+                // Спробуємо прочитати тіло помилки
+                const errorBody = await response.text();
+                let errorMessage = `Помилка додавання коментаря: ${response.status}`;
+                 try {
+                     const errorJson = JSON.parse(errorBody);
+                     if (errorJson.message) errorMessage += ` - ${errorJson.message}`;
+                 } catch (e) { /* ігноруємо, якщо не JSON */ }
+                throw new Error(errorMessage + `\n${errorBody}`);
+            }
+
+            // Якщо успішно, оновлюємо список коментарів
+            await fetchComments(productId); // Перезавантажуємо коментарі
+            return true; // Успіх
+
+        } catch (error) {
+            console.error('Не вдалося додати коментар:', error);
+            alert('Не вдалося додати коментар: ' + error.message);
+            return false; // Помилка
+        }
+    }
+    async function deleteCommentFrontend(commentId) {
+         if (!confirm(`Ви впевнені, що хочете видалити цей коментар (ID: ${commentId})?`)) {
+             return;
+         }
+         const token = localStorage.getItem('authToken'); // Потрібен токен для авторизації
+
+         try {
+             const response = await fetch(`${API_BASE_URL}/comments/${commentId}`, {
+                 method: 'DELETE',
+                 headers: {
+                     'Authorization': `Bearer ${token}` // Додаємо токен, якщо потрібно
+                 }
+             });
+
+             if (response.status === 204) { // Успішне видалення (No Content)
+                 alert('Коментар успішно видалено.');
+                 // Оновлюємо список коментарів для поточного продукту
+                 if (currentProductId) {
+                     await fetchComments(currentProductId);
+                 }
+             } else if (response.status === 404) {
+                  throw new Error("Коментар не знайдено (404).");
+             } else if (response.status === 403) {
+                  throw new Error("У вас немає прав для видалення цього коментаря (403).");
+             }
+             else {
+                 const errorBody = await response.text();
+                 throw new Error(`Помилка видалення коментаря: ${response.status}. ${errorBody}`);
+             }
+         } catch (error) {
+             console.error('Не вдалося видалити коментар:', error);
+             alert('Не вдалося видалити коментар: ' + error.message);
+         }
+     }
+     
   // --- Оновлена функція налаштування обробників подій ---
   function setupCardButtonListeners() {
-      const commentModalEl = document.getElementById('commentModal');
-      const commentModal = commentModalEl ? new bootstrap.Modal(commentModalEl) : null;
+        const commentModalEl = document.getElementById('commentModal');
+        const commentModal = commentModalEl ? new bootstrap.Modal(commentModalEl) : null;
 
-      // View (тепер відкриває коментарі)
-      document.querySelectorAll('.view-btn').forEach(button => {
-          button.addEventListener('click', () => {
-              currentProductId = button.getAttribute('data-product-id');
-              console.log("Відкрито коментарі для продукту ID:", currentProductId);
+        // View (відкриває коментарі)
+        document.querySelectorAll('.view-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                currentProductId = button.getAttribute('data-product-id');
+                if (!currentProductId) {
+                    console.error("Не вдалося отримати ID продукту з кнопки View.");
+                    return;
+                }
+                console.log("Відкрито коментарі для продукту ID:", currentProductId);
 
-              if (commentModal) {
-                  // Очистити поле введення перед показом
-                  const commentInput = document.getElementById('commentInput');
-                  if(commentInput) commentInput.value = '';
+                if (commentModal) {
+                    const commentInput = document.getElementById('commentInput');
+                    if(commentInput) commentInput.value = ''; // Очистити поле введення
 
-                  // Відобразити існуючі коментарі
-                  displayComments(currentProductId);
+                    // Завантажити і відобразити коментарі з бекенду
+                    fetchComments(currentProductId);
 
-                  commentModal.show();
-              } else {
-                  console.error("Модальне вікно коментарів не знайдено!");
-              }
-          });
-      });
+                    commentModal.show();
+                } else {
+                    console.error("Модальне вікно коментарів не знайдено!");
+                }
+            });
+        });
 
-      // Edit
-      document.querySelectorAll('.edit-btn').forEach(button => {
-          button.addEventListener('click', async function () {
-              const productId = this.getAttribute('data-product-id');
-              console.log("Редагувати продукт з ID:", productId);
-              await openEditModal(productId); // Переконайся, що ця функція існує і працює
-          });
-      });
+        // Edit (без змін, переконайтесь, що openEditModal працює)
+        document.querySelectorAll('.edit-btn').forEach(button => {
+            button.addEventListener('click', async function () {
+                const productId = this.getAttribute('data-product-id');
+                await openEditModal(productId);
+            });
+        });
 
-      // Delete
-      document.querySelectorAll('.delete-btn').forEach(button => {
-          button.addEventListener('click', async function () {
-              const productId = this.getAttribute('data-product-id');
-              if (confirm(`Ви впевнені, що хочете видалити продукт з ID ${productId}?`)) {
-                  await deleteProduct(productId); // Переконайся, що ця функція існує і працює
-              }
-          });
-      });
-  }
+        // Delete (без змін, переконайтесь, що deleteProduct працює)
+        document.querySelectorAll('.delete-btn').forEach(button => {
+            button.addEventListener('click', async function () {
+                const productId = this.getAttribute('data-product-id');
+                if (confirm(`Ви впевнені, що хочете видалити продукт з ID ${productId}?`)) {
+                    await deleteProduct(productId);
+                }
+            });
+        });
+    }
+
 
   // --- Оновлений обробник кнопки збереження коментаря ---
   const saveCommentBtn = document.getElementById('saveCommentBtn');
-  if (saveCommentBtn) {
-      saveCommentBtn.addEventListener('click', () => {
-          const commentInput = document.getElementById('commentInput');
-          const commentText = commentInput.value.trim();
+    if (saveCommentBtn) {
+        saveCommentBtn.addEventListener('click', async () => { // Робимо функцію асинхронною
+            const commentInput = document.getElementById('commentInput');
+            const commentText = commentInput.value.trim();
+            const authorId = getCurrentUserId(); // Отримуємо ID автора (потрібна реалізація)
 
-          if (commentText && currentProductId !== null) {
-              const commentsKey = `comments_${currentProductId}`;
-              const savedCommentsJson = localStorage.getItem(commentsKey);
-              let comments = savedCommentsJson ? JSON.parse(savedCommentsJson) : [];
+            if (!authorId) {
+                 alert("Не вдалося визначити автора коментаря. Увійдіть в систему.");
+                 console.error("Author ID is null or undefined.");
+                 return;
+            }
 
-              comments.push(commentText); // Додати новий коментар до масиву
+            if (commentText && currentProductId !== null) {
+                 // Викликаємо функцію для надсилання коментаря на бекенд
+                const success = await addComment(currentProductId, commentText, authorId);
 
-              localStorage.setItem(commentsKey, JSON.stringify(comments)); // Зберегти оновлений масив
+                if (success) {
+                    // Очистити поле введення тільки якщо коментар успішно додано
+                    commentInput.value = '';
+                    // Список коментарів вже оновлено всередині addComment->fetchComments
+                }
+                // Не закриваємо модалку автоматично
 
-              // Оновити відображення списку коментарів у модальному вікні
-              displayComments(currentProductId);
+            } else if (!commentText) {
+                 alert("Будь ласка, введіть коментар.");
+            } else {
+                console.error("Не вдалося зберегти коментар: ID продукту не встановлено.");
+                 alert("Сталася помилка. Неможливо зберегти коментар.");
+            }
+        });
+    }
 
-              // Очистити поле введення
-              commentInput.value = '';
-
-              // Не закривати модальне вікно автоматично, щоб користувач бачив список
-              // Якщо потрібно закривати, розкоментуйте наступні рядки:
-              // const commentModalEl = document.getElementById('commentModal');
-              // const modal = bootstrap.Modal.getInstance(commentModalEl);
-              // if (modal) modal.hide();
-
-          } else if (!commentText) {
-               alert("Будь ласка, введіть коментар.");
-          } else {
-              console.error("Не вдалося зберегти коментар: ID продукту не встановлено.");
-               alert("Сталася помилка. Неможливо зберегти коментар.");
-          }
-      });
-  }
-
-
-  // --- Функції для модальних вікон та CRUD операцій (Add/Edit/Delete) ---
-  // Переконайтесь, що функції openAddModal, addNewCard, openEditModal, saveEditedCard, deleteProduct
-  // існують у вашому коді і працюють коректно з вашим бекендом та localStorage.
-  // Я залишу тут заглушки, щоб показати, де вони мають бути.
-
-   // Відкриття модального вікна ДОДАВАННЯ
   const addCardModalElement = document.getElementById('addCardModal');
   const addCardModal = addCardModalElement ? new bootstrap.Modal(addCardModalElement) : null;
 
