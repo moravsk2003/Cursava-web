@@ -11,13 +11,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import com.example.demo.exception.ResourceNotFoundException;
-//@AllArgsConstructor
-//@RequiredArgsConstructor
+
 @Service
 public class UserService implements UserDetailsService {
     private  final UserRepository userRepository;

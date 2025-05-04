@@ -5,13 +5,11 @@ import com.example.demo.dto.AuthRequest; // Імпортуємо наш DTO дл
 import com.example.demo.dto.AuthResponse; // Імпортуємо наш DTO для відповіді аутентифікації
 import com.example.demo.model.User; // Імпортуємо User модель
 import com.example.demo.service.UserService; // Імпортуємо наш UserService
-
 import jakarta.validation.Valid; // Для валідації DTO
 import org.springframework.http.HttpStatus; // Для статус кодів
 import org.springframework.http.ResponseEntity; // Для повернення ResponseEntity
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-
 // *** ДОДАНО: Імпорти Spring Security для аутентифікації ***
 import org.springframework.security.authentication.AuthenticationManager; // Менеджер аутентифікації
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken; // Для створення токена аутентифікації

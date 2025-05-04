@@ -10,9 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import com.example.demo.model.User;
-import com.example.demo.dto.ProductDto;
-import com.example.demo.model.User; // Імпорт User для мапінгу creator
-import java.util.stream.Collectors; // Імпорт для роботи зі Stream API
 @Service
 public class ProductService {
     private final ProductRepository productRepository;

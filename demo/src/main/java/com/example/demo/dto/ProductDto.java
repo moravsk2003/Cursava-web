@@ -6,11 +6,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import com.example.demo.model.Product;
 import com.example.demo.model.ProductType; // Імпортуємо ProductType
-
 import java.util.List;
 import java.util.stream.Collectors;
 // Можливо, знадобляться інші імпорти, якщо DTO включає ID творця тощо.
-
 
 @Data // Генерує гетери, сетери, toString, equals, hashCode
 @NoArgsConstructor // Конструктор без аргументів

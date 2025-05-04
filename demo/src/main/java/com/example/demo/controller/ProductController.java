@@ -11,9 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity; // Використовуємо ResponseEntity для контролю над статусом
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
-import com.example.demo.dto.ProductDto; // Імпорт ProductDto
-// Імпорт Product потрібен, якщо ви його приймаєте в @RequestBody
-
 // Імпорти для отримання інформації про аутентифікованого користувача (вже є)
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

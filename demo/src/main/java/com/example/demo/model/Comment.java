@@ -1,5 +1,5 @@
 package com.example.demo.model;
-import com.example.demo.model.User;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;

@@ -7,12 +7,9 @@ import com.example.demo.model.User; // Припустимо, що у тебе є
 import com.example.demo.repository.CommentRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 // Імпортуємо наш кастомний виняток
 import com.example.demo.exception.ResourceNotFoundException;
-import java.util.Optional; // Не забуваємо про імпорт Optional, якщо він десь ще використовується
-
 
 @Service
 public class CommentService {

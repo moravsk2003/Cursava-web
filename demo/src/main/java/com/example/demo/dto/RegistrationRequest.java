@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor; // Lombok
 import lombok.AllArgsConstructor; // Lombok
 import com.example.demo.model.User; // Імпортуємо User, якщо потрібно для конвертації
 
-
 @Data // Гетери, сетери, toString, equals, hashCode
 @NoArgsConstructor // Конструктор без аргументів
 @AllArgsConstructor // Конструктор з усіма аргументами

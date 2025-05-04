@@ -5,7 +5,6 @@ import org.springframework.http.HttpStatus; // Імпортуємо HttpStatus �
 import org.springframework.http.ResponseEntity; // Імпортуємо ResponseEntity
 import org.springframework.web.bind.annotation.ControllerAdvice; // Імпортуємо @ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler; // Імпортуємо @ExceptionHandler
-
 import lombok.extern.slf4j.Slf4j; // Для логування (потребує Lombok)
 
 /**
