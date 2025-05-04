@@ -1,8 +1,11 @@
 package com.example.demo.controller;
 
+import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.Product;
 import com.example.demo.model.ProductType;
 import com.example.demo.service.ProductService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -53,5 +56,22 @@ public class ProductController {
     public Product getProductByOriginalTitle(@RequestBody String originalTitle){
         return productService.getProductByOriginalTitle(originalTitle);
 
+    }
+    @PutMapping("/{id}") // PUT /products/{id}
+    public ResponseEntity<Product> updateProduct(
+            @PathVariable Long id, // Отримуємо ID з URL шляху
+            @Valid @RequestBody Product updatedProductDetails // Отримуємо оновлені дані з тіла запиту
+    ) {
+        try {
+            // Валідація @RequestBody буде виконана автоматично завдяки @Valid
+            Product updatedProduct = productService.updateProduct(id, updatedProductDetails);
+            return ResponseEntity.ok(updatedProduct); // Повертаємо 200 OK та оновлений продукт
+        } catch (ResourceNotFoundException e) {
+            // Якщо продукт не знайдено, повертаємо 404 Not Found (обробляється GlobalExceptionHandler)
+            throw e; // Кидаємо виняток далі для GlobalExceptionHandler
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null); // 500
+        }
     }
 }

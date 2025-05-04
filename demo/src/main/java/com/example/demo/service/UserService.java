@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.UserUpdateDto;
 import com.example.demo.model.User;
 import com.example.demo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -104,4 +105,22 @@ public class UserService implements UserDetailsService {
         );
     }
 
+    @Transactional // Оновлення має бути транзакційним
+    public User updateUser(Long id, UserUpdateDto userUpdateDetails) {
+        // 1. Знаходимо існуючого користувача за ID
+        User existingUser = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Користувача з ID '" + id + "' не знайдено для оновлення"));
+
+        // 2. Оновлюємо дозволені поля з DTO
+        // Важливо: оновлюємо ТІЛЬКИ ті поля, які дозволено змінювати через цей ендпоінт
+        existingUser.setName(userUpdateDetails.getName());
+        existingUser.setAge(userUpdateDetails.getAge());
+        existingUser.setPhoneNumber(userUpdateDetails.getPhoneNumber());
+
+        // Ми НЕ оновлюємо: id, email, password, roles!
+
+        // 3. Зберігаємо оновленого користувача
+        // Spring Data JPA збереже зміни в рамках транзакції
+        return userRepository.save(existingUser);
+    }
 }

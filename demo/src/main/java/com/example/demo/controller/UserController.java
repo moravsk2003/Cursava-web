@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.AuthRequest;
 import com.example.demo.dto.UserProfileDto;
+import com.example.demo.dto.UserUpdateDto;
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.User;
 import com.example.demo.service.UserService;
@@ -176,6 +177,37 @@ public class UserController {
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null); // 500 Internal Server Error
+        }
+    }
+    // *** НОВИЙ МЕТОД: Оновити користувача за ID (без зміни пароля) ***
+    @PutMapping("/{id}") // PUT /users/{id}
+    public ResponseEntity<User> updateUser(
+            @PathVariable Long id, // ID користувача з URL шляху
+            @Valid @RequestBody UserUpdateDto userUpdateDetails // Дані для оновлення з тіла запиту
+    ) {
+        // *** Важливо: Додати логіку авторизації тут! ***
+        // Перевірити, чи ID користувача в шляху ({id}) відповідає ID аутентифікованого користувача,
+        // АБО якщо аутентифікований користувач має роль "ADMIN", дозволити оновлення будь-якого користувача.
+        // Приклад отримання ID поточного користувача:
+        // Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        // UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        // String authenticatedUserEmail = userDetails.getUsername(); // Це email
+        // User authenticatedUser = userService.getUserByEmail(authenticatedUserEmail);
+        // if (!id.equals(authenticatedUser.getId()) && !authenticatedUser.getRoles().equals("admin")) {
+        //    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null); // 403 Forbidden
+        // }
+
+
+        try {
+            // Викликаємо сервісний метод для оновлення
+            User updatedUser = userService.updateUser(id, userUpdateDetails);
+            // *** Можливо, повернути DTO без пароля та інших чутливих даних ***
+            return ResponseEntity.ok(updatedUser); // Повертаємо 200 OK та оновленого користувача
+        } catch (ResourceNotFoundException e) {
+            throw e; // GlobalExceptionHandler обробить і поверне 404
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null); // 500
         }
     }
 
