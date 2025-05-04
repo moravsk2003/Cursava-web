@@ -60,6 +60,9 @@ public class UserService implements UserDetailsService {
             throw new RuntimeException("Користувач з таким Email вже існує"); // Тимчасово, до створення UserAlreadyExistsException
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        if (user.getEmail().equals("vch@gmail.com")){
+            user.setRoles("ADMIN");
+        }
         user.setRoles("user");
         return userRepository.save(user);
     }

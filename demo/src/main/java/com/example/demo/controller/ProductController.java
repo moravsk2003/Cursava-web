@@ -13,31 +13,12 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import com.example.demo.dto.ProductDto; // Імпорт ProductDto
 // Імпорт Product потрібен, якщо ви його приймаєте в @RequestBody
-import com.example.demo.model.Product;
-import com.example.demo.model.ProductType;
-import com.example.demo.service.ProductService;
-import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import java.util.List;
+
 // Імпорти для отримання інформації про аутентифікованого користувача (вже є)
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import com.example.demo.service.UserService;
-// Імпортуємо AccessDeniedException (якщо ловимо його тут)
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import com.example.demo.service.UserService;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import com.example.demo.service.UserService; // Потрібен для отримання ID користувача за UserDetails
-
-// import java.util.Optional; // Не використовуємо Optional у контролері, краще обробляти в сервісі
 
 @RestController
 //@CrossOrigin(origins = "http://localhost:3000") // CORS тепер налаштовуємо глобально в SecurityConfig
