@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.model.Comment;
 import com.example.demo.service.CommentService;
+import lombok.Data;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@Data
 //@CrossOrigin(origins = "http://localhost:3000") // Дозволяємо запити з фронтенду на localhost:3000
 @RequestMapping("/comments") // Базовий шлях для ендпоінтів коментарів
 public class CommentController {
@@ -102,4 +104,5 @@ public class CommentController {
         public Long getAuthorId() { return authorId; }
         public void setAuthorId(Long authorId) { this.authorId = authorId; }
     }
+
 }

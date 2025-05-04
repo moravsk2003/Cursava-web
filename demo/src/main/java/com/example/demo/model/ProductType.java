@@ -3,6 +3,10 @@ package com.example.demo.model;
 public enum ProductType {
     ANIME,
     BOOK,
-    MOVIE,
+    Film,
     GAME,
+    Nowela,
+    Manga,
+    Manhva,
+    Manhvua,
 }
