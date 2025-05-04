@@ -207,10 +207,11 @@
 
     <script defer src="checkout.js"></script></body>
     <script>
-function fetchData() {
-  document.addEventListener('DOMContentLoaded', function () {
+      document.addEventListener('DOMContentLoaded', function () {
     fetchData();  // Викликаємо функцію при завантаженні сторінки
 });
+function fetchData() {
+ 
     const token = localStorage.getItem('authToken');
 
     if (!token) {
@@ -242,5 +243,6 @@ function fetchData() {
         console.error('Помилка:', error);
     });
 }
+
     </script>
 </html>
