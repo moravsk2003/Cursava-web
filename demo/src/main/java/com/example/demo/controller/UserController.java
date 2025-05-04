@@ -1,6 +1,8 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.AuthRequest;
+import com.example.demo.dto.UserProfileDto;
+import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.User;
 import com.example.demo.service.UserService;
 import jakarta.validation.Valid;
@@ -9,10 +11,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/users")
+
 public class UserController {
     private final UserService userService;
 
@@ -117,6 +123,59 @@ public class UserController {
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while deleting the user"); // 500
+        }
+    }
+    @GetMapping("/me") // Використовуємо /me для позначення "поточний користувач"
+    public ResponseEntity<UserProfileDto> getCurrentUserProfile() {
+        // 1. Отримуємо об'єкт аутентифікації з контексту безпеки Spring Security
+        // Контекст безпеки зберігає інформацію про поточного аутентифікованого користувача.
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        // Перевіряємо, чи користувач аутентифікований (чи Authentication не null і не анонімний)
+        // Хоча цей ендпоінт буде захищено Spring Security, ця перевірка може бути корисною
+        // для ясності або в інших сценаріях.
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
+            // Теоретично, Spring Security має це перехопити раніше і повернути 401 Unauthorized,
+            // але ми можемо повернути, наприклад, 404 Not Found, якщо вважаємо, що користувач не знайдений (хоча 401/403 більш правильні)
+            // return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build(); // Або 403 Forbidden
+            // У цьому сценарії (захищений ендпоінт) цей блок, ймовірно, ніколи не буде досягнутий.
+            // Якщо ви бачите тут помилку, це може вказувати на проблему в конфігурації безпеки.
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // Приклад повернення 404
+        }
+
+
+        // 2. Отримуємо Principal (зазвичай UserDetails) з об'єкта аутентифікації
+        // UserDetails - це об'єкт, який створив ваш UserService.loadUserByUsername()
+        Object principal = authentication.getPrincipal();
+
+        String username;
+        if (principal instanceof UserDetails) {
+            // Якщо Principal є UserDetails (стандартний випадок для Spring Security)
+            username = ((UserDetails) principal).getUsername(); // Отримуємо логін (email) користувача
+        } else {
+            // Якщо Principal іншого типу (наприклад, просто рядок імені для анонімних користувачів)
+            username = principal.toString();
+        }
+
+        // 3. Використовуємо логін (email), щоб знайти повний об'єкт User у базі даних
+        try {
+            User user = userService.getUserByEmail(username);
+
+            // 4. Створюємо DTO з потрібними даними
+            UserProfileDto userProfileDto = new UserProfileDto(user.getName(), user.getEmail());
+            // Якщо потрібно додати вік:
+            // userProfileDto.setAge(user.getAge());
+
+            // 5. Повертаємо DTO у відповіді з статусом 200 OK
+            return ResponseEntity.ok(userProfileDto);
+
+        } catch (ResourceNotFoundException e) {
+            // Цей виняток може виникнути, якщо користувача, який був аутентифікований,
+            // не знайдено в базі даних (дуже малоймовірний сценарій, якщо система коректна)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // Повертаємо 404 Not Found
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null); // 500 Internal Server Error
         }
     }
 
