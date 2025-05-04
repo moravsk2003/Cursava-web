@@ -258,6 +258,7 @@
         </div>
       </div>
     </div>
+    
     <div class="nav-scroller bg-body shadow-sm">
       <nav class="nav nav-pills justify-content-center" id="filter-nav">
         <a class="nav-link active" data-filter="all" href="#">All</a>
@@ -268,75 +269,94 @@
         <a class="nav-link" data-filter="manga" href="#">Manga</a>
         <a class="nav-link" data-filter="film" href="#">Film</a>
         <a class="nav-link" data-filter="web_nowela" href="#">Web_nowela</a>
-        <button class="btn btn-primary" onclick="openCardModal()">Add New Card</button>
-      </nav>
+        <button class="btn btn-primary ms-3" id="add-card-button" style="display: none;" onclick="openAddModal()">Add New Card</button> </nav>
     </div>
-
-    <div class="modal fade" id="cardModal" tabindex="-1" aria-labelledby="cardModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
+  </header>
+  
+  <div class="modal fade" id="addCardModal" tabindex="-1" aria-labelledby="addCardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addCardModalLabel">Додати новий продукт</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="addCardForm">
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="addCardOriginalTitle" class="form-label">Назва</label>
+              <input type="text" class="form-control" id="addCardOriginalTitle" required>
+            </div>
+            <div class="mb-3">
+              <label for="addCardDescription" class="form-label">Опис</label>
+              <textarea class="form-control" id="addCardDescription" rows="3" required></textarea>
+            </div>
+            <div class="mb-3">
+              <label for="addCardType" class="form-label">Тип</label>
+              <select class="form-select" id="addCardType" required>
+                <option value="">Виберіть тип...</option>
+                <option value="ANIME">Anime</option>
+                <option value="BOOK">Book</option>
+                <option value="MOVIE">Movie</option>
+                <option value="GAME">Game</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
+            <button type="submit" class="btn btn-primary">Зберегти</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  
+  <div class="modal fade" id="editCardModal" tabindex="-1" aria-labelledby="editCardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="editCardForm">
           <div class="modal-header">
-            <h5 class="modal-title" id="cardModalLabel">Add New Card</h5>
+            <h5 class="modal-title" id="editCardModalLabel">Редагувати продукт</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <form id="cardForm">
-              <div class="mb-3">
-                <label for="cardTitle" class="form-label">Title</label>
-                <input type="text" class="form-control" id="cardTitle" required>
-              </div>
-              <div class="mb-3">
-                <label for="cardText" class="form-label">Text</label>
-                <textarea class="form-control" id="cardText" rows="3" required></textarea>
-              </div>
-            </form>
+            <input type="hidden" id="editCardId"> <div class="mb-3">
+            <label for="editCardOriginalTitle" class="form-label">Назва</label>
+            <input type="text" class="form-control" id="editCardOriginalTitle" required>
+          </div>
+            <div class="mb-3">
+              <label for="editCardDescription" class="form-label">Опис</label>
+              <textarea class="form-control" id="editCardDescription" required></textarea>
+            </div>
+            <div class="mb-3">
+              <label for="editCardType" class="form-label">Тип</label>
+              <select class="form-select" id="editCardType" required>
+                <option value="">Виберіть тип...</option>
+                <option value="ANIME">Anime</option>
+                <option value="BOOK">Book</option>
+                <option value="MOVIE">Movie</option>
+                <option value="GAME">Game</option>
+              </select>
+            </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            <button type="button" class="btn btn-primary" onclick="addNewCard()">Save</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
+            <button type="submit" class="btn btn-primary">Зберегти зміни</button>
           </div>
-        </div>
+        </form>
       </div>
     </div>
-
-    <div class="modal fade" id="editCardModal" tabindex="-1" aria-labelledby="editCardModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <form id="editCardForm">
-            <div class="modal-header">
-              <h5 class="modal-title" id="editCardModalLabel">Редагувати картку</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              <input type="hidden" id="editCardIndex">
-              <div class="mb-3">
-                <label for="editCardTitle" class="form-label">Заголовок</label>
-                <input type="text" class="form-control" id="editCardTitle" required>
-              </div>
-              <div class="mb-3">
-                <label for="editCardText" class="form-label">Текст</label>
-                <textarea class="form-control" id="editCardText" required></textarea>
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button type="submit" class="btn btn-primary">Зберегти</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-    
+  </div>
+  
+  
+  
     <div class="album py-5 bg-body-tertiary">
       <div class="container">
-        <div class="row" id="cardContainer">
-          <!-- Сюди додаватимуться нові картки -->
-        </div>
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3" id="cardContainer">
+          <p class="text-center">Завантаження продуктів...</p> </div>
       </div>
     </div>
-  </header>
-</main>
-
-
+  </div>
+  
   <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
     <div class="col-md-4 d-flex align-items-center">
       <a href="/" class="mb-3 me-2 mb-md-0 text-body-secondary text-decoration-none lh-1" aria-label="Bootstrap">
@@ -349,149 +369,549 @@
       <li class="ms-3"><a class="text-body-secondary" href="#" aria-label="Facebook"><svg class="bi" width="24" height="24"><use xlink:href="#facebook"/></svg> </a></li>
     </ul>
   </footer>
-
-<script defer src="../assets/dist/js/bootstrap.bundle.min.js" ></script>
-</body>
-<body>
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        const navLinks = document.querySelectorAll("#filter-nav .nav-link");
-    
-        navLinks.forEach(link => {
-          link.addEventListener("click", function (e) {
-            e.preventDefault();
-    
-            navLinks.forEach(l => l.classList.remove("active"));
-            this.classList.add("active");
-    
-            const filter = this.getAttribute("data-filter");
-            console.log("Фільтр: ", filter);
-          });
-        });
-      });
-      function navigateWithFade(target) {
+  
+  <script src="../assets/dist/js/bootstrap.bundle.min.js"></script>
+  
+  
+  <script>
+    // --- Функції для навігації та анімації (залишаємо їх) ---
+    function navigateWithFade(target) {
       document.body.classList.add('fade-out');
       setTimeout(() => {
         window.location.href = target;
-      }, 500); // тривалість анімації
+      }, 500);
+    }
+  
+    function fadeOutPage() {
+      const block = document.getElementById('fade-block');
+      if (block) {
+          block.classList.add('fade-out');
+          setTimeout(() => {
+              block.style.display = 'none';
+          }, 500);
       }
-  // Відкриття модального вікна
-  function openCardModal() {
-    const modal = new bootstrap.Modal(document.getElementById('cardModal'));
-    modal.show();
-  }
-
-  // Додавання нової картки
-  async function addNewCard() {
-  const title = document.getElementById('cardTitle').value;
-  const text = document.getElementById('cardText').value;
-
-  await fetch('http://localhost:8080/products', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ title, text })
-  });
-
-  bootstrap.Modal.getInstance(document.getElementById('cardModal')).hide();
-  fetchAndRenderCards();
-}
-
-async function fetchAndRenderCards() {
-  const response = await fetch('http://localhost:8080/products');
-  const cards = await response.json();
-
-  const container = document.getElementById('cardContainer');
-  container.innerHTML = '';
-
-  cards.forEach((card) => {
-    const cardHtml = `
-      <div class="col">
-        <div class="card shadow-sm">
-          <svg class="bd-placeholder-img card-img-top" width="100%" height="225">
-            <rect width="100%" height="100%" fill="#55595c"/>
-            <text x="50%" y="50%" fill="#eceeef" dy=".3em">${card.title}</text>
-          </svg>
-          <div class="card-body">
-            <p class="card-text">${card.text}</p>
-            <div class="d-flex justify-content-between align-items-center">
-              <div class="btn-group">
-                <button type="button" class="btn btn-sm btn-outline-secondary">View</button>
-                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="openEditModal(${card.id}, '${card.title}', '${card.text}')">Edit</button>
+    }
+  
+    // Функція для перевірки стану аутентифікації та оновлення UI хедера
+    function updateAuthUI() {
+        const token = localStorage.getItem('authToken');
+        const authButtons = document.getElementById('auth-buttons');
+        const userDropdown = document.getElementById('user-dropdown');
+        const addCardButton = document.getElementById('add-card-button');
+  
+        if (token) {
+            // Користувач аутентифікований
+            if (authButtons) authButtons.style.display = 'none';
+            if (userDropdown) userDropdown.style.display = 'block'; // Показати дропдаун користувача
+            if (addCardButton) addCardButton.style.display = 'inline-block'; // Показати кнопку "Add New Card"
+        } else {
+            // Користувач не аутентифікований
+            if (authButtons) authButtons.style.display = 'block'; // Показати кнопки логіну/реєстрації
+            if (userDropdown) userDropdown.style.display = 'none'; // Приховати дропдаун користувача
+             if (addCardButton) addCardButton.style.display = 'none'; // Приховати кнопку "Add New Card"
+        }
+    }
+  
+    // Обробник для кнопки "Sign out"
+    const signOutLink = document.getElementById('sign-out-link');
+    if (signOutLink) {
+        signOutLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            localStorage.removeItem('authToken'); // Видалити токен
+            updateAuthUI(); // Оновити хедер
+            navigateWithFade('index.html'); // Перенаправити на головну або сторінку логіну
+        });
+    }
+  
+  
+    // --- Функції для завантаження та відображення продуктів ---
+  
+    // Єдина функція для завантаження продуктів з бекенду з фільтрацією
+    async function fetchAndRenderProducts(filter) {
+        const container = document.getElementById('cardContainer');
+        if (container) {
+             container.innerHTML = '<p class="text-center">Завантаження продуктів...</p>'; // Індикатор завантаження
+        }
+  
+        let url = 'http://localhost:8080/products'; // Базовий URL для всіх продуктів
+  
+        if (filter && filter !== 'all') {
+            // Якщо вибрано фільтр за типом
+            url = `http://localhost:8080/products/by-type?type=${filter.toUpperCase()}`; // Перетворюємо фільтр у верхній регістр
+        }
+  
+        try {
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json'
+                    // Для цих публічних GET ендпоінтів заголовок 'Authorization' не потрібен
+                }
+            });
+  
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Помилка завантаження продуктів: ${response.status} ${errorText}`);
+            }
+  
+            const products = await response.json();
+            console.log("Отримано продуктів з бекенду:", products);
+  
+            renderCards(products); // Відображаємо отримані продукти
+  
+        } catch (error) {
+            console.error('Сталася помилка при завантаженні продуктів:', error);
+            if (container) {
+                container.innerHTML = `<p class="text-danger text-center">Не вдалося завантажити продукти: ${error.message}</p>`;
+            }
+        }
+    }
+  
+    // Функція для відображення карток на сторінці
+    function renderCards(products) {
+        const container = document.getElementById('cardContainer');
+        if (!container) return; // Виходимо, якщо контейнер не знайдено
+  
+        container.innerHTML = ''; // Очищаємо контейнер
+  
+        if (!products || products.length === 0) {
+            container.innerHTML = '<p class="text-center">Продукти не знайдено.</p>';
+            return;
+        }
+  
+        products.forEach(product => {
+            // Використовуємо назви полів з бекенду (originalTitle, description, type)
+            const title = product.originalTitle || 'Без назви';
+            const description = product.description || 'Без опису';
+            const type = product.type || 'N/A';
+            const productId = product.id; // ID продукту для редагування/видалення
+  
+            const cardHtml = `
+              <div class="col">
+                <div class="card shadow-sm">
+                  <svg class="bd-placeholder-img card-img-top" width="100%" height="225" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Thumbnail" preserveAspectRatio="xMidYMid slice" focusable="false">
+                    <title>Thumbnail</title>
+                    <rect width="100%" height="100%" fill="#55595c"/>
+                    <text x="50%" y="50%" fill="#eceeef" dy=".3em">${title}</text>
+                  </svg>
+                  <div class="card-body">
+                    <p class="card-text">${description}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div class="btn-group">
+                        <button type="button" class="btn btn-sm btn-outline-secondary view-btn" data-product-id="${productId}">View</button>
+                         <button type="button" class="btn btn-sm btn-outline-secondary edit-btn" data-product-id="${productId}">Edit</button>
+                        <button type="button" class="btn btn-sm btn-outline-danger delete-btn" data-product-id="${productId}">Delete</button>
+                      </div>
+                      <small class="text-body-secondary">Тип: ${type}</small>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <small class="text-body-secondary">Just now</small>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-    container.innerHTML += cardHtml;
-  });
-}
-let currentEditId = null;
-
-
-function openEditModal(id, title, text) {
-  currentEditId = id;
-  document.getElementById('cardTitle').value = title;
-  document.getElementById('cardText').value = text;
-  document.getElementById('cardModalLabel').innerText = 'Edit Card';
-
-  const saveBtn = document.querySelector('#cardModal .btn-primary');
-  saveBtn.onclick = saveEditedCard;
-
-  const modal = new bootstrap.Modal(document.getElementById('cardModal'));
-  modal.show();
-}
-
-function openAddModal() {
-  currentEditId = null;
-  document.getElementById('cardTitle').value = '';
-  document.getElementById('cardText').value = '';
-  document.getElementById('cardModalLabel').innerText = 'Add New Card';
-
-  const saveBtn = document.querySelector('#cardModal .btn-primary');
-  saveBtn.onclick = addNewCard;
-
-  const modal = new bootstrap.Modal(document.getElementById('cardModal'));
-  modal.show();
-}
-
-document.getElementById('editCardForm').addEventListener('submit', function(e) {
-  e.preventDefault();
-
-  const index = document.getElementById('editCardIndex').value;
-  const title = document.getElementById('editCardTitle').value.trim();
-  const text = document.getElementById('editCardText').value.trim();
-
-  const cards = JSON.parse(localStorage.getItem('cards')) || [];
-  cards[index] = { title, text };
-  localStorage.setItem('cards', JSON.stringify(cards));
-
-  bootstrap.Modal.getInstance(document.getElementById('editCardModal')).hide();
-  renderCards();
-});
-async function saveEditedCard() {
-  const title = document.getElementById('cardTitle').value;
-  const text = document.getElementById('cardText').value;
-
-  if (!currentEditId) return;
-
-  await fetch(`http://localhost:8080/products/${currentEditId}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ title, text })
-  });
-
-  currentEditId = null;
-  bootstrap.Modal.getInstance(document.getElementById('cardModal')).hide();
-  fetchAndRenderCards(); // Перерендерити картки
-}
-// Викликати при завантаженні
-window.onload = fetchAndRenderCards;
-    </script>
-</body>
-</html>
+            `;
+            // Додаємо HTML картки. Можна використовувати createElement і appendChild для кращої продуктивності
+            container.innerHTML += cardHtml;
+        });
+  
+        // *** ДОДАНО: Додаємо обробники подій до кнопок View/Edit/Delete після їх додавання в DOM ***
+        setupCardButtonListeners();
+    }
+  
+     // Функція для налаштування обробників подій на кнопках карток
+    function setupCardButtonListeners() {
+        // Обробник для кнопок "Edit"
+        document.querySelectorAll('.edit-btn').forEach(button => {
+            button.addEventListener('click', async function() {
+                const productId = this.getAttribute('data-product-id');
+                console.log("Редагувати продукт з ID:", productId);
+                // Отримати дані продукту для редагування
+                await openEditModal(productId);
+            });
+        });
+  
+        // Обробник для кнопок "Delete"
+        document.querySelectorAll('.delete-btn').forEach(button => {
+            button.addEventListener('click', async function() {
+                const productId = this.getAttribute('data-product-id');
+                console.log("Видалити продукт з ID:", productId);
+                // Підтвердження видалення
+                if (confirm(`Ви впевнені, що хочете видалити продукт з ID ${productId}?`)) {
+                     await deleteProduct(productId);
+                }
+            });
+        });
+  
+        // Обробник для кнопок "View" (приклад)
+         document.querySelectorAll('.view-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const productId = this.getAttribute('data-product-id');
+                console.log("Переглянути продукт з ID:", productId);
+                 // TODO: Реалізувати перехід на сторінку детального перегляду продукту
+                 alert(`Перегляд продукту з ID ${productId}. Ця функція поки не реалізована.`);
+            });
+         });
+    }
+  
+  
+    // --- Функції для модальних вікон та взаємодії з бекендом (Add/Edit) ---
+  
+    // Відкриття модального вікна ДОДАВАННЯ
+    const addCardModalElement = document.getElementById('addCardModal');
+    const addCardModal = addCardModalElement ? new bootstrap.Modal(addCardModalElement) : null;
+  
+    function openAddModal() {
+        if (addCardModal) {
+            // Очистити форму перед відкриттям
+            document.getElementById('addCardForm').reset();
+            addCardModal.show();
+        } else {
+             console.error("Модальне вікно додавання не знайдено.");
+        }
+    }
+  
+    // Обробник надсилання форми ДОДАВАННЯ
+    const addCardForm = document.getElementById('addCardForm');
+    if (addCardForm) {
+         addCardForm.addEventListener('submit', async function(e) {
+            e.preventDefault(); // Запобігаємо стандартній відправці форми
+            await addNewCard(); // Викликаємо асинхронну функцію додавання
+         });
+    }
+  
+  
+    // Асинхронна функція для ДОДАВАННЯ нового продукту через API
+    async function addNewCard() {
+        const titleInput = document.getElementById('addCardOriginalTitle');
+        const descriptionInput = document.getElementById('addCardDescription');
+        const typeSelect = document.getElementById('addCardType'); // Отримуємо елемент Select
+  
+        if (!titleInput || !descriptionInput || !typeSelect) {
+            console.error("Елементи форми додавання не знайдені.");
+            alert("Помилка: Не знайдено необхідні елементи форми.");
+            return;
+        }
+  
+        const title = titleInput.value.trim();
+        const description = descriptionInput.value.trim();
+        const type = typeSelect.value; // Отримуємо вибране значення типу
+  
+        if (!title || !description || !type) {
+            alert("Будь ласка, заповніть всі обов'язкові поля (Назва, Опис, Тип).");
+            return;
+        }
+  
+         // Перетворюємо тип у верхній регістр для відповідності ENUM на бекенді
+        const productType = type.toUpperCase();
+  
+  
+        // Дані для відправки на бекенд
+        const productData = {
+          originalTitle: title,
+          description: description,
+          type: productType,
+          // Можливо, потрібно додати інші поля, які є обов'язковими або мають значення за замовчуванням
+          reviewCount: 0, // При створенні зазвичай 0
+          averageRating: 0 // При створенні зазвичай 0
+          // Поля id, comments, creator, favoritedByUsers - генеруються/встановлюються на бекенді
+        };
+  
+        const token = localStorage.getItem('authToken'); // Отримуємо токен
+        if (!token) {
+             alert("Для додавання продукту потрібно увійти в систему.");
+             // Можна перенаправити на сторінку логіну
+             // navigateWithFade('logen-in.html');
+             return;
+        }
+  
+  
+        try {
+          const response = await fetch('http://localhost:8080/products', { // POST /products
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}` // Додаємо токен авторизації
+            },
+            body: JSON.stringify(productData) // Відправляємо об'єкт з коректними назвами
+          });
+  
+          if (!response.ok) {
+               // Обробка помилок бекенду (наприклад, валідація 400, 401/403, 500)
+              const errorBody = await response.text(); // Читаємо тіло відповіді (може бути JSON або текст)
+              let errorMessage = `Помилка створення продукту: ${response.status}`;
+              try {
+                  // Спробувати розпарсити як JSON (якщо бекенд повертає AppError або інший JSON)
+                  const errorJson = JSON.parse(errorBody);
+                   if (errorJson.message) {
+                       errorMessage += ` - ${errorJson.message}`;
+                   } else {
+                       errorMessage += ` - ${errorBody}`; // Якщо JSON, але без message поля
+                   }
+              } catch (e) {
+                  // Якщо тіло відповіді не JSON, використовувати його як є
+                  errorMessage += ` - ${errorBody}`;
+              }
+              throw new Error(errorMessage);
+          }
+  
+          // Успішне створення (статус 201 Created)
+          alert('Продукт успішно додано!');
+          if (addCardModal) addCardModal.hide(); // Сховати модалку додавання
+          // Оновлюємо список карток після успіху. Можна перезавантажити всі, або лише ті, що відповідають поточному фільтру.
+          // Наприклад, викликаємо з поточним активним фільтром
+          const activeFilterLink = document.querySelector('#filter-nav .nav-link.active');
+          const currentFilter = activeFilterLink ? activeFilterLink.getAttribute('data-filter') : 'all';
+          fetchAndRenderProducts(currentFilter);
+  
+  
+        } catch (error) {
+          console.error('Помилка при додаванні продукту:', error);
+          alert('Не вдалося додати продукт: ' + error.message);
+        }
+    }
+  
+  
+    // --- Функції для модального вікна РЕДАГУВАННЯ ---
+  
+    const editCardModalElement = document.getElementById('editCardModal');
+    const editCardModal = editCardModalElement ? new bootstrap.Modal(editCardModalElement) : null;
+    const editCardForm = document.getElementById('editCardForm');
+    const editCardIdInput = document.getElementById('editCardId');
+    const editCardOriginalTitleInput = document.getElementById('editCardOriginalTitle');
+    const editCardDescriptionInput = document.getElementById('editCardDescription');
+    const editCardTypeSelect = document.getElementById('editCardType'); // Отримуємо елемент Select для типу
+  
+  
+    // Асинхронна функція для відкриття модального вікна РЕДАГУВАННЯ та завантаження даних
+    async function openEditModal(productId) {
+         if (!editCardModal || !editCardIdInput || !editCardOriginalTitleInput || !editCardDescriptionInput || !editCardTypeSelect) {
+             console.error("Елементи модального вікна редагування не знайдені.");
+             return;
+         }
+  
+         const token = localStorage.getItem('authToken'); // Отримуємо токен
+          if (!token) {
+              alert("Для редагування продукту потрібно увійти в систему.");
+              // Можна перенаправити на сторінку логіну
+              // navigateWithFade('logen-in.html');
+              return;
+         }
+  
+  
+         try {
+             // Завантажуємо дані конкретного продукту з бекенду за ID
+             const response = await fetch(`http://localhost:8080/products/${productId}`, { // GET /products/{id}
+                 method: 'GET',
+                 headers: {
+                     'Accept': 'application/json',
+                      'Authorization': `Bearer ${token}` // GET /products/{id} може вимагати аутентифікації
+                 }
+             });
+  
+             if (!response.ok) {
+                  const errorBody = await response.text();
+                  throw new Error(`Помилка завантаження даних продукту: ${response.status} ${errorBody}`);
+             }
+  
+             const productData = await response.json();
+             console.log("Отримано дані продукту для редагування:", productData);
+  
+  
+             // Заповнюємо поля форми редагування отриманими даними
+             editCardIdInput.value = productData.id; // Зберігаємо ID продукту
+             editCardOriginalTitleInput.value = productData.originalTitle || '';
+             editCardDescriptionInput.value = productData.description || '';
+             // Встановлюємо вибране значення для типу
+             if (productData.type) {
+                 editCardTypeSelect.value = productData.type.toUpperCase(); // Встановлюємо значення в SELECT
+             } else {
+                 editCardTypeSelect.value = ''; // Встановлюємо пусте значення, якщо тип не вказано
+             }
+  
+  
+             // Відкриваємо модальне вікно редагування
+             editCardModal.show();
+  
+         } catch (error) {
+             console.error('Сталася помилка при завантаженні даних продукту для редагування:', error);
+             alert('Не вдалося завантажити дані продукту для редагування: ' + error.message);
+         }
+    }
+  
+    // Обробник надсилання форми РЕДАГУВАННЯ
+    if (editCardForm) {
+         editCardForm.addEventListener('submit', async function(e) {
+            e.preventDefault(); // Запобігаємо стандартній відправці форми
+            await saveEditedCard(); // Викликаємо асинхронну функцію збереження
+         });
+    }
+  
+  
+    // Асинхронна функція для ЗБЕРЕЖЕННЯ РЕДАГОВАНОГО продукту через API
+    async function saveEditedCard() {
+         const productId = editCardIdInput.value; // Отримуємо ID з прихованого поля
+         const title = editCardOriginalTitleInput.value.trim(); // Отримуємо дані з полів редагування
+         const description = editCardDescriptionInput.value.trim();
+         const type = editCardTypeSelect.value; // Отримуємо вибране значення типу
+  
+         if (!productId) {
+              console.error("Не визначено ID продукту для збереження змін.");
+              alert("Помилка: Не визначено, який продукт оновлювати.");
+              return;
+         }
+          if (!title || !description || !type) {
+              alert("Будь ласка, заповніть всі обов'язкові поля (Назва, Опис, Тип) для редагування.");
+              return;
+          }
+  
+         // Перетворюємо тип у верхній регістр
+         const productType = type.toUpperCase();
+  
+  
+         // Дані для відправки на бекенд
+         const productData = {
+            // Відправляємо оновлені поля
+           originalTitle: title,
+           description: description,
+           type: productType
+           // Не надсилаємо ID в тілі запиту
+           // Можливо, потрібно додати інші поля, якщо вони редагуються (наприклад, reviewCount, averageRating)
+         };
+  
+          const token = localStorage.getItem('authToken'); // Отримуємо токен
+          if (!token) {
+              alert("Для оновлення продукту потрібно увійти в систему.");
+               // navigateWithFade('logen-in.html');
+              return;
+         }
+  
+  
+         try {
+             const response = await fetch(`http://localhost:8080/products/${productId}`, { // PUT /products/{id}
+                 method: 'PUT',
+                 headers: {
+                     'Content-Type': 'application/json',
+                     'Authorization': `Bearer ${token}` // Додаємо токен авторизації
+                 },
+                 body: JSON.stringify(productData) // Відправляємо об'єкт з коректними назвами
+             });
+  
+             if (!response.ok) {
+                  // Обробка помилок бекенду (404, 400, 403, 500)
+                  const errorBody = await response.text(); // Читаємо тіло відповіді
+                  let errorMessage = `Помилка оновлення продукту: ${response.status}`;
+                  try {
+                       const errorJson = JSON.parse(errorBody);
+                       if (errorJson.message) {
+                           errorMessage += ` - ${errorJson.message}`;
+                       } else {
+                           errorMessage += ` - ${errorBody}`;
+                       }
+                  } catch (e) {
+                      errorMessage += ` - ${errorBody}`;
+                  }
+                  throw new Error(errorMessage);
+             }
+  
+             // Успішне оновлення (статус 200 OK)
+             alert('Продукт успішно оновлено!');
+             if (editCardModal) editCardModal.hide(); // Сховати модалку редагування
+  
+             // Оновлюємо список карток після успіху
+             const activeFilterLink = document.querySelector('#filter-nav .nav-link.active');
+             const currentFilter = activeFilterLink ? activeFilterLink.getAttribute('data-filter') : 'all';
+             fetchAndRenderProducts(currentFilter);
+  
+  
+         } catch (error) {
+             console.error('Помилка при оновленні продукту:', error);
+             alert('Не вдалося оновити продукт: ' + error.message);
+         }
+    }
+  
+  
+    // Асинхронна функція для ВИДАЛЕННЯ продукту через API
+    async function deleteProduct(productId) {
+         const token = localStorage.getItem('authToken'); // Отримуємо токен
+          if (!token) {
+              alert("Для видалення продукту потрібно увійти в систему.");
+               // navigateWithFade('logen-in.html');
+              return;
+         }
+  
+         try {
+             const response = await fetch(`http://localhost:8080/products/${productId}`, { // DELETE /products/{id}
+                 method: 'DELETE',
+                 headers: {
+                     'Authorization': `Bearer ${token}` // Додаємо токен авторизації
+                 }
+             });
+  
+             if (!response.ok) {
+                   const errorBody = await response.text(); // Читаємо тіло відповіді
+                  let errorMessage = `Помилка видалення продукту: ${response.status}`;
+                   try {
+                       const errorJson = JSON.parse(errorBody);
+                       if (errorJson.message) {
+                           errorMessage += ` - ${errorJson.message}`;
+                       } else {
+                           errorMessage += ` - ${errorBody}`;
+                       }
+                  } catch (e) {
+                      errorMessage += ` - ${errorBody}`;
+                  }
+                 throw new Error(errorMessage);
+             }
+  
+             // Успішне видалення (статус 200 OK або 204 No Content)
+             alert('Продукт успішно видалено!');
+  
+             // Оновлюємо список карток після видалення
+             const activeFilterLink = document.querySelector('#filter-nav .nav-link.active');
+             const currentFilter = activeFilterLink ? activeFilterLink.getAttribute('data-filter') : 'all';
+             fetchAndRenderProducts(currentFilter);
+  
+         } catch (error) {
+              console.error('Сталася помилка при видаленні продукту:', error);
+             alert('Не вдалося видалити продукт: ' + error.message);
+         }
+    }
+  
+  
+    // --- Ініціалізація при завантаженні сторінки ---
+    document.addEventListener("DOMContentLoaded", function () {
+      // Оновлюємо UI хедера на основі стану аутентифікації
+      updateAuthUI();
+  
+      // Налаштовуємо обробники кліків на фільтрах
+      const navLinks = document.querySelectorAll("#filter-nav .nav-link");
+      navLinks.forEach(link => {
+        link.addEventListener("click", function (e) {
+          e.preventDefault();
+  
+          navLinks.forEach(l => l.classList.remove("active"));
+          this.classList.add("active");
+  
+          const filter = this.getAttribute("data-filter");
+          console.log("Вибраний фільтр: ", filter);
+  
+          // Завантажуємо продукти з бекенду з вибраним фільтром
+          fetchAndRenderProducts(filter);
+        });
+      });
+  
+       // Завантажуємо всі продукти при першому завантаженні сторінки
+       // Викликаємо з невеликою затримкою, щоб анімація fade-out в body встигла початись, якщо вона є.
+      setTimeout(() => {
+          fetchAndRenderProducts('all');
+      }, 50); // Затримка 50 мілісекунд
+  
+  
+      // TODO: Можливо, додати логіку для початкового стану кнопки "Want more options?" (#fade-block)
+      // Якщо користувач аутентифікований, можна одразу приховати цей блок.
+    });
+  
+    // Важливо: bootstrap.bundle.min.js вже завантажується перед цим скриптом, тому bootstrap доступний.
+    // Видаляємо window.onload = fetchAndRenderCards; оскільки DOMContentLoaded використовується вище.
+  
+  </script>
+  </body>
+  </html>
