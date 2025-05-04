@@ -51,7 +51,7 @@ public class SecurityConfig {
 
                 // Налаштовуємо правила авторизації
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll() // Ендпоінти аутентифікації публічні
+                        .requestMatchers("/auth/**").permitAll() // Ендпоінти аутентифікації публічні
                         // Інші публічні ендпоінти (якщо є)
                         .requestMatchers("/users/hel", "/product/hel").permitAll()
                         // Налаштуйте публічні GET ендпоінти продуктів/коментарів, якщо вони доступні без аутентифікації

@@ -214,47 +214,76 @@
     <script defer src="../assets/dist/js/bootstrap.bundle.min.js" integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq"></script>
     
     <script>
+      // Функція для переходу з анімацією
+      function navigateWithFade(target) {
+          document.body.classList.add('fade-out');
+          setTimeout(() => {
+              window.location.href = target;
+          }, 500); // тривалість анімації в мілісекундах
+      }
+
       // Підключаємо обробник події submit до форми
       document.getElementById('registerForm').addEventListener('submit', function (e) {
-        e.preventDefault();  // Запобігаємо перезавантаженню сторінки
-    
-        // Збираємо дані форми
-        const formData = {
-          name: document.getElementById('name').value,
-          email: document.getElementById('email').value,
-          password: document.getElementById('password').value,
-          phoneNumber: document.getElementById('phoneNumber').value,
-          age: document.getElementById('age').value,
-        };
-    
-        // Відправка POST запиту на сервер
-        fetch('http://localhost:8080/users/register', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(formData),
-    })
-    .then(response => response.json()) // Якщо сервер повернув JSON
-    .then(data => {
-      if (data) {
-        alert('User registered successfully!');
-        navigateWithFade('next-page.html'); // Переходь на наступну сторінку
-      } else {
-        alert('Error registering user');
-      }
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      alert('An error occurred during registration');
-    });
-  });
-      function navigateWithFade(target) {
-      document.body.classList.add('fade-out');
-      setTimeout(() => {
-        window.location.href = target;
-      }, 500); // тривалість анімації
-      }
-    </script>
+          e.preventDefault();  // Запобігаємо перезавантаженню сторінки
+
+          // Збираємо дані форми
+          const formData = {
+              name: document.getElementById('name').value,
+              email: document.getElementById('email').value,
+              password: document.getElementById('password').value,
+              phoneNumber: document.getElementById('phoneNumber').value,
+              // Важливо: перетворюємо вік на число, оскільки на бекенді він int
+              age: parseInt(document.getElementById('age').value, 10),
+          };
+
+          // Перевірка, чи вік є коректним числом після парсингу
+          if (isNaN(formData.age)) {
+              alert('Будь ласка, введіть коректний вік.');
+              return; // Зупиняємо виконання функції
+          }
+
+
+          // Відправка POST запиту на сервер на ендпоінт AuthController
+          fetch('http://localhost:8080/auth/register', { // <-- Змінено ендпоінт
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(formData),
+          })
+          .then(response => {
+              // Перевіряємо статус відповіді. response.ok - це true, якщо статус 2xx
+              if (response.ok) {
+                  // Успішна реєстрація (статус 201 Created)
+                  alert('Користувача успішно зареєстровано!');
+                  // Оскільки бекенд повертає рядок "Користувача успішно зареєстровано!" в тілі,
+                  // ми можемо його прочитати, але для переходу на наступну сторінку це не обов'язково.
+                  // Якщо тобі потрібне саме це повідомлення, можеш використати:
+                  // return response.text();
+                  navigateWithFade('next-page.html'); // Переходимо на наступну сторінку
+                  return null; // Важливо повернути null або інше значення, щоб наступний .then не спрацював з undefined
+              } else {
+                  // Обробка помилок (наприклад, 400 Bad Request)
+                  // Читаємо тіло відповіді як текст, оскільки бекенд повертає повідомлення про помилку як рядок
+                  return response.text().then(errorMessage => {
+                       // Кидаємо помилку, щоб вона була перехоплена в блоці .catch()
+                       // Включаємо статус відповіді в повідомлення помилки для налагодження
+                      throw new Error(`Помилка ${response.status}: ${errorMessage || response.statusText}`);
+                  });
+              }
+          })
+          .then(data => {
+              // Цей блок виконається тільки якщо response.ok був true і ми не кинули помилку.
+              // Якщо ти вирішиш читати response.text() при успіху, тут ти отримаєш його.
+              // Якщо ні, цей блок не потрібен або виконається з data = null.
+              // console.log("Успішна відповідь або повідомлення:", data);
+          })
+          .catch(error => {
+              // Ловимо помилки мережі або помилки, кинуті в попередніх .then блоках
+              console.error('Сталася помилка під час запиту:', error);
+              alert('Сталася помилка під час реєстрації: ' + error.message); // Показуємо користувачу повідомлення з помилки
+          });
+      });
+  </script>
   </body>
 </html>
