@@ -319,34 +319,80 @@
           }, 500); 
       }
   // Функція для відображення карток на сторінці
-  function renderCards() {
-  const cards = JSON.parse(localStorage.getItem('cards')) || [];
+  function renderCards(products, saveToLocalStorage = true) {
   const container = document.getElementById('cardContainer');
+  if (!container) return;
+
   container.innerHTML = '';
 
-  cards.forEach(card => {
+  if (!products || products.length === 0) {
+    container.innerHTML = '<p class="text-center">Продукти не знайдено.</p>';
+    return;
+  }
+
+  // Синхронізація з localStorage (якщо увімкнено)
+  if (saveToLocalStorage) {
+    const simplifiedCards = products.map(p => ({
+      title: p.originalTitle || 'Без назви',
+      text: p.description || 'Без опису'
+    }));
+    localStorage.setItem('cards', JSON.stringify(simplifiedCards));
+  }
+
+  products.forEach(product => {
+    const title = product.originalTitle || 'Без назви';
+    const description = product.description || 'Без опису';
+    const type = product.type || 'N/A';
+    const productId = product.id;
+
     const cardHtml = `
       <div class="col">
         <div class="card shadow-sm">
-          <svg class="bd-placeholder-img card-img-top" width="100%" height="225" xmlns="http://www.w3.org/2000/svg" role="img">
+          <svg class="bd-placeholder-img card-img-top" width="100%" height="225">
             <rect width="100%" height="100%" fill="#55595c"/>
-            <text x="50%" y="50%" fill="#eceeef" dy=".3em">${card.title}</text>
+            <text x="50%" y="50%" fill="#eceeef" dy=".3em">${title}</text>
           </svg>
           <div class="card-body">
-            <p class="card-text">${card.text}</p>
+            <p class="card-text">${description}</p>
             <div class="d-flex justify-content-between align-items-center">
               <div class="btn-group">
-                <button type="button" class="btn btn-sm btn-outline-secondary">View</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary view-btn" data-product-id="${productId}">View</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary edit-btn" data-product-id="${productId}">Edit</button>
+                <button type="button" class="btn btn-sm btn-outline-danger delete-btn" data-product-id="${productId}">Delete</button>
               </div>
+              <small class="text-body-secondary">Тип: ${type}</small>
             </div>
           </div>
         </div>
       </div>
     `;
+
     container.innerHTML += cardHtml;
   });
+
+  setupCardButtonListeners(); // Один обробник подій на всі кнопки
+  }
+
+  fetch('/products') // або інша адреса
+  .then(res => res.json())
+  .then(products => {
+    renderCards(products, true); // true = зберегти у localStorage
+  })
+  .catch(error => {
+    console.error("Помилка:", error);
+    renderCardsFromLocalStorage(); // fallback
+  });
+  function renderCardsFromLocalStorage() {
+  const saved = JSON.parse(localStorage.getItem('cards')) || [];
+  const products = saved.map((card, i) => ({
+    id: i,
+    originalTitle: card.title,
+    description: card.text,
+    type: 'N/A' // бо в localStorage типу немає
+  }));
+  renderCards(products, false); // не оновлюємо localStorage знову
 }
-window.onload = renderCards;
+window.onload = renderCardsFromLocalStorage();
     </script>
 </body>
 </html>
