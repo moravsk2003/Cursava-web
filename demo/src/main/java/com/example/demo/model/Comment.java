@@ -1,5 +1,6 @@
 package com.example.demo.model;
 import com.example.demo.model.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -28,6 +29,7 @@ public class Comment {
     private User author; // Посилання на сутність User, який є автором коментаря
 
     // ЗВ'ЯЗОК: Many-to-One з Product (продукт, що коментується)
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY) // Зазвичай продукти не потрібно завантажувати одразу з коментарем
     @JoinColumn(name = "product_id", nullable = false) // Стовпець у таблиці comments, що посилається на продукт
     private Product product; // Посилання на сутність Product, до якого відноситься коментар

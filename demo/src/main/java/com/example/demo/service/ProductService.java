@@ -4,25 +4,54 @@ import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.Product;
 import com.example.demo.model.ProductType;
 import com.example.demo.repository.ProductRepository;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
-
+import com.example.demo.model.User;
+import com.example.demo.dto.ProductDto;
+import com.example.demo.model.User; // Імпорт User для мапінгу creator
+import java.util.stream.Collectors; // Імпорт для роботи зі Stream API
 @Service
 public class ProductService {
     private final ProductRepository productRepository;
+    private final UserService userService;
 
-    public ProductService(ProductRepository productRepository) {
-
+    public ProductService(ProductRepository productRepository, UserService userService) {
         this.productRepository = productRepository;
+        this.userService = userService;
     }
     public List<Product> getAllProduct(){
 
         return productRepository.findAll();
     }
 
+
+    // *** НОВИЙ МЕТОД: Видалити продукт за ID з перевіркою прав (якщо потрібно) ***
+    @Transactional // Видалення має виконуватися в транзакції
+    // Приймає ID продукту та, можливо, ID поточного користувача для перевірки
+    public void deleteProductById(Long productId  , Long currentUserId ) {
+        // 1. Знаходимо продукт, який потрібно видалити
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Продукт з ID '" + productId + "' не знайдено для видалення"));
+
+        // 2. *** ДОДАНО: Перевірка авторизації (якщо потрібно) ***
+        // Наприклад: лише творець або адмін може видалити продукт
+
+        User currentUser = userService.getUserById(currentUserId); // Знаходимо поточного користувача
+
+        // Перевірка, чи поточний користувач є творцем продукту АБО чи він є адміном
+        // Припускаємо, що у вас є поле 'creator' у Product та метод getRoles() у User
+        if (!product.getCreator().getId().equals(currentUserId) && !currentUser.getRoles().contains("ADMIN")) {
+            // Якщо користувач не є творцем і не є адміном, кидаємо виняток
+            throw new AccessDeniedException("Користувач не має прав для видалення цього продукту.");
+            // Або можна кинути кастомний виняток, який обробить GlobalExceptionHandler
+        }
+
+        // 3. Видаляємо продукт
+        productRepository.deleteById(productId);
+    }
     public List<Product> getProductsByType(ProductType type ){ // Змінено тип аргументу
         return productRepository.findByType(type);
     }
@@ -35,9 +64,22 @@ public class ProductService {
         return productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Продукт з ID '" + id + "' не знайдено"));
     }
-    public Product createProduct(Product product){
+    @Transactional // Операція створення також може бути транзакційною
+    // Приймає об'єкт Product з даними від фронтенду та ID користувача, який його створив
+    public Product createProduct(Product productDetails, Long creatorId) { // Додано creatorId як аргумент
+        // 1. Знаходимо користувача-творця за його ID
+        User creator = userService.getUserById(creatorId); // Ваш getUserById вже кидає ResourceNotFoundException, якщо користувача не знайдено
 
-        return productRepository.save(product);
+        // 2. Встановлюємо знайденого користувача як творця для продукту
+        productDetails.setCreator(creator);
+
+        // 3. Можливо, ініціалізуємо інші поля, якщо вони не приходять з фронтенду або мають значення за замовчуванням
+        // productDetails.setReviewCount(0);
+        // productDetails.setAverageRating(0);
+        // productDetails.setComments(new ArrayList<>()); // Коментарі додаються окремо
+
+        // 4. Зберігаємо продукт у базі даних
+        return productRepository.save(productDetails);
     }
     @Transactional // Оновлення має виконуватися в межах транзакції
     public Product updateProduct(Long id, Product updatedProductDetails) {
