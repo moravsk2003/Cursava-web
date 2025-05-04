@@ -3,12 +3,18 @@ package com.example.demo.controller;
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.Product;
 import com.example.demo.model.ProductType;
+import com.example.demo.model.User;
 import com.example.demo.service.ProductService;
 import jakarta.validation.Valid; // Для валідації @RequestBody
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity; // Використовуємо ResponseEntity для контролю над статусом
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import com.example.demo.service.UserService; // Потрібен для отримання ID користувача за UserDetails
+
 // import java.util.Optional; // Не використовуємо Optional у контролері, краще обробляти в сервісі
 
 @RestController
@@ -17,10 +23,12 @@ import java.util.List;
 public class ProductController {
 
     private final ProductService productService;
+    private final UserService userService;
 
     // Впровадження залежностей через конструктор
-    public ProductController(ProductService productService) {
+    public ProductController(ProductService productService,UserService userService) {
         this.productService = productService;
+        this.userService = userService;
     }
 
     // Тестовий публічний ендпоінт (якщо потрібен)
@@ -136,8 +144,45 @@ public class ProductController {
         }
     }
 
-    // Можна додати ендпоінт для видалення продукту (DELETE /{id})
-    // Цей ендпоінт має бути захищеним і доступним лише для адмінів або творця продукту.
-    // @DeleteMapping("/{id}")
-    // public ResponseEntity<?> deleteProduct(@PathVariable Long id) { ... }
+     @DeleteMapping("/{id}") // HTTP метод DELETE на /products/{id}
+     public ResponseEntity<?> deleteProduct(@PathVariable Long id) { // Приймаємо ID продукту з URL
+         // *** ДОДАНО: Отримання ID поточного аутентифікованого користувача ***
+         // Це потрібно, якщо логіка авторизації знаходиться в сервісі і використовує ID користувача
+         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+         String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
+         User currentUser;
+         try {
+             currentUser = userService.getUserByEmail(currentUsername);
+         } catch (ResourceNotFoundException e) {
+             // Це малоймовірно для аутентифікованого користувача, але обробляємо
+             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Could not retrieve current user"); // Або 401/403
+         }
+
+
+         try {
+             // Викликаємо сервісний метод для видалення, передаючи ID продукту та ID користувача
+             // commentService.updateComment(id, updatedCommentDetails, currentUser.getId()); // Приклад для коментарів
+
+             productService.deleteProductById(id /* , currentUser.getId() */); // Передаємо ID користувача, якщо сервіс його приймає
+
+             // Якщо видалення успішне, повертаємо 204 No Content
+             return ResponseEntity.noContent().build();
+
+         } catch (ResourceNotFoundException e) {
+             // Якщо продукт не знайдено, повертаємо 404 Not Found (обробляється GlobalExceptionHandler)
+             throw e;
+         }
+        /*
+         // *** ДОДАНО: Обробка винятку авторизації (якщо логіка в сервісі кидає AccessDeniedException) ***
+        catch (AccessDeniedException e) {
+             e.printStackTrace();
+             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User does not have permission to delete this product."); // 403
+        }
+        */
+         catch (Exception e) {
+             e.printStackTrace();
+             // Загальна помилка сервера
+             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while deleting the product."); // 500
+         }
+     }
 }

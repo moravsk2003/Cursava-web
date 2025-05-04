@@ -9,20 +9,45 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-
+import com.example.demo.model.User;
 @Service
 public class ProductService {
     private final ProductRepository productRepository;
+    private final UserService userService;
 
-    public ProductService(ProductRepository productRepository) {
-
+    public ProductService(ProductRepository productRepository, UserService userService) {
         this.productRepository = productRepository;
+        this.userService = userService;
     }
     public List<Product> getAllProduct(){
 
         return productRepository.findAll();
     }
 
+    // *** НОВИЙ МЕТОД: Видалити продукт за ID з перевіркою прав (якщо потрібно) ***
+    @Transactional // Видалення має виконуватися в транзакції
+    // Приймає ID продукту та, можливо, ID поточного користувача для перевірки
+    public void deleteProductById(Long productId /* , Long currentUserId */) {
+        // 1. Знаходимо продукт, який потрібно видалити
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Продукт з ID '" + productId + "' не знайдено для видалення"));
+
+        // 2. *** ДОДАНО: Перевірка авторизації (якщо потрібно) ***
+        // Наприклад: лише творець або адмін може видалити продукт
+        /*
+        User currentUser = userService.getUserById(currentUserId); // Знаходимо поточного користувача
+
+        // Перевірка, чи поточний користувач є творцем продукту АБО чи він є адміном
+        // Припускаємо, що у вас є поле 'creator' у Product та метод getRoles() у User
+        if (!product.getCreator().getId().equals(currentUserId) && !currentUser.getRoles().contains("ADMIN")) {
+            // Якщо користувач не є творцем і не є адміном, кидаємо виняток
+            throw new AccessDeniedException("Користувач не має прав для видалення цього продукту.");
+            // Або можна кинути кастомний виняток, який обробить GlobalExceptionHandler
+        }
+        */
+        // 3. Видаляємо продукт
+        productRepository.deleteById(productId);
+    }
     public List<Product> getProductsByType(ProductType type ){ // Змінено тип аргументу
         return productRepository.findByType(type);
     }
