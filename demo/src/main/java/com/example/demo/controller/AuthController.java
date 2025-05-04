@@ -19,6 +19,8 @@ import org.springframework.security.core.Authentication; // Результат �
 import org.springframework.security.core.AuthenticationException; // Винятки аутентифікації
 import com.example.demo.util.JwtUtil;
 
+import java.util.Map;
+
 @RestController
 @CrossOrigin(origins = "http://localhost:3000") // Дозволяємо запити з фронтенду
 @RequestMapping("/auth") // Базовий шлях для аутентифікації
@@ -50,7 +52,7 @@ public class AuthController {
             // Успішна реєстрація
             // Не повертаємо повний об'єкт User з паролем!
             // Можна повернути DTO без пароля або просто повідомлення про успіх.
-            return ResponseEntity.status(HttpStatus.CREATED).body("Користувача успішно зареєстровано!");
+            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "Користувача успішно зареєстровано!"));
 
         } catch (RuntimeException e) { // Можна ловити більш специфічні винятки, наприклад UserAlreadyExistsException
             e.printStackTrace();
@@ -58,10 +60,10 @@ public class AuthController {
             // Можна обробити тут специфічний виняток UserAlreadyExistsException
             // і повернути 409 Conflict.
             // Зараз просто повертаємо 400 Bad Request або 500 Internal Server Error.
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Помилка реєстрації: " + e.getMessage()); // 400
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Помилка реєстрації: " + e.getMessage()));
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Неочікувана помилка реєстрації"); // 500
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Неочікувана помилка реєстрації"));
         }
     }
 
@@ -70,6 +72,7 @@ public class AuthController {
     @PostMapping("/login") // POST /api/auth/login
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody AuthRequest authRequest) {
         try {
+            System.out.println("Attempting login with email: " + authRequest.getEmail());
             // 1. Створюємо об'єкт токена аутентифікації на основі логіна та пароля з запиту
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
