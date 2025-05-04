@@ -1,9 +1,6 @@
 package com.example.demo.dto;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank; // Для валідації
-import jakarta.validation.constraints.Email; // Для валідації email
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.*;
 import lombok.Data; // Lombok
 import lombok.NoArgsConstructor; // Lombok
 import lombok.AllArgsConstructor; // Lombok
@@ -21,7 +18,7 @@ public class RegistrationRequest {
     @NotBlank(message = "Email не може бути пустим")
     @Email(message = "Некоректний формат Email")
     private String email;
-
+    @Size(min = 4, max = 22, message = "Пароль має бути від {4} до {22} символів")
     @NotBlank(message = "Пароль не може бути пустим")
     // Тут можна додати @Size або @Pattern для валідації пароля
     private String password;
