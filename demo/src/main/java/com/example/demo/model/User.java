@@ -1,5 +1,6 @@
 package com.example.demo.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
@@ -31,13 +32,14 @@ public class User {
     private int age;
     @Pattern(regexp = "\\d{12}",message = "phon number muct be 12 digsts")
     private String phoneNumber;
-    //private String roles;
+    private String roles;
     @ManyToMany(fetch = FetchType.LAZY) // Завантажуємо список улюблених продуктів ліниво (коли він потрібен)
     @JoinTable(
             name = "user_favorite_products", // Назва проміжної таблиці
             joinColumns = @JoinColumn(name = "user_id"), // Стовпець у проміжній таблиці, що посилається на цю сутність (User)
             inverseJoinColumns = @JoinColumn(name = "product_id") // Стовпець у проміжній таблиці, що посилається на іншу сутність (Product)
     )
+    @JsonIgnore
     // Використовуємо Set, щоб уникнути дублікатів у списку улюблених
     private Set<Product> favoriteProducts = new HashSet<>(); // Ініціалізуємо порожнім Set
 
@@ -48,6 +50,7 @@ public class User {
     @OneToMany(mappedBy = "creator", // 'creator' - поле в Product, яке "володіє" зв'язком
             orphanRemoval = true, // Видаляти продукти, якщо їх видаляють зі списку створених у User
             fetch = FetchType.LAZY) // Завантажуємо список створених продуктів ліниво
+    @JsonIgnore
     // Використовуємо List, оскільки порядок може бути важливим (або Set, якщо ні)
     private List<Product> createdProducts = new ArrayList<>(); // Ініціалізуємо порожнім List
 

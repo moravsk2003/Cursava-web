@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name="products")
@@ -32,10 +33,12 @@ public class Product {
     @Min(0)
     private int reviewCount;
     private int averageRating;
+    @JsonIgnore
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>(); // Ініціалізуємо список
     //  Зв'язок Багато-до-Одним для творця продукту ***
     // Багато продуктів можуть мати одного творця (User)
+
     @ManyToOne(fetch = FetchType.LAZY) // Завантажуємо творця ліниво
     @JoinColumn(name = "creator_id") // Назва стовпця у таблиці products, що буде зовнішнім ключем до таблиці users
     private User creator; // Поле, що посилається на користувача, який створив продукт
@@ -45,6 +48,7 @@ public class Product {
     // 'favoriteProducts' - це назва поля у сутності User, яке "володіє" цим зв'язком
     @ManyToMany(mappedBy = "favoriteProducts", fetch = FetchType.LAZY) // 'mappedBy' вказує, що зв'язком керує інша сторона (User)
     // Використовуємо Set, щоб уникнути дублікатів у списку
+    @JsonIgnore
     private Set<User> favoritedByUsers = new HashSet<>(); // Список користувачів, які додали цей продукт в обране
 
 
