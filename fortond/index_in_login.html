@@ -298,6 +298,33 @@
         </div>
       </div>
     </div>
+
+    <div class="modal fade" id="editCardModal" tabindex="-1" aria-labelledby="editCardModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form id="editCardForm">
+            <div class="modal-header">
+              <h5 class="modal-title" id="editCardModalLabel">Редагувати картку</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <input type="hidden" id="editCardIndex">
+              <div class="mb-3">
+                <label for="editCardTitle" class="form-label">Заголовок</label>
+                <input type="text" class="form-control" id="editCardTitle" required>
+              </div>
+              <div class="mb-3">
+                <label for="editCardText" class="form-label">Текст</label>
+                <textarea class="form-control" id="editCardText" required></textarea>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-primary">Зберегти</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
     
     <div class="album py-5 bg-body-tertiary">
       <div class="container">
@@ -355,43 +382,34 @@
   }
 
   // Додавання нової картки
-  function addNewCard() {
-  const title = document.getElementById('cardTitle').value.trim();
-  const text = document.getElementById('cardText').value.trim();
+  async function addNewCard() {
+  const title = document.getElementById('cardTitle').value;
+  const text = document.getElementById('cardText').value;
 
-  if (!title || !text) {
-    alert("Please fill in all fields.");
-    return;
-  }
+  await fetch('http://localhost:8080/products', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ title, text })
+  });
 
-  // Отримати існуючі картки
-  const cards = JSON.parse(localStorage.getItem('cards')) || [];
-
-  // Додати нову картку
-  cards.push({ title, text });
-
-  // Зберегти в localStorage
-  localStorage.setItem('cards', JSON.stringify(cards));
-
-  // Оновити інтерфейс
-  renderCards();
-
-  // Очистити форму та закрити модалку
-  document.getElementById('cardForm').reset();
-  const modal = bootstrap.Modal.getInstance(document.getElementById('cardModal'));
-  modal.hide();
+  bootstrap.Modal.getInstance(document.getElementById('cardModal')).hide();
+  fetchAndRenderCards();
 }
 
-function renderCards() {
-  const cards = JSON.parse(localStorage.getItem('cards')) || [];
+async function fetchAndRenderCards() {
+  const response = await fetch('http://localhost:8080/products');
+  const cards = await response.json();
+
   const container = document.getElementById('cardContainer');
   container.innerHTML = '';
 
-  cards.forEach(card => {
+  cards.forEach((card) => {
     const cardHtml = `
       <div class="col">
         <div class="card shadow-sm">
-          <svg class="bd-placeholder-img card-img-top" width="100%" height="225" xmlns="http://www.w3.org/2000/svg" role="img">
+          <svg class="bd-placeholder-img card-img-top" width="100%" height="225">
             <rect width="100%" height="100%" fill="#55595c"/>
             <text x="50%" y="50%" fill="#eceeef" dy=".3em">${card.title}</text>
           </svg>
@@ -400,8 +418,9 @@ function renderCards() {
             <div class="d-flex justify-content-between align-items-center">
               <div class="btn-group">
                 <button type="button" class="btn btn-sm btn-outline-secondary">View</button>
-                <button type="button" class="btn btn-sm btn-outline-secondary">Edit</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="openEditModal(${card.id}, '${card.title}', '${card.text}')">Edit</button>
               </div>
+              <small class="text-body-secondary">Just now</small>
             </div>
           </div>
         </div>
@@ -410,9 +429,69 @@ function renderCards() {
     container.innerHTML += cardHtml;
   });
 }
+let currentEditId = null;
 
+
+function openEditModal(id, title, text) {
+  currentEditId = id;
+  document.getElementById('cardTitle').value = title;
+  document.getElementById('cardText').value = text;
+  document.getElementById('cardModalLabel').innerText = 'Edit Card';
+
+  const saveBtn = document.querySelector('#cardModal .btn-primary');
+  saveBtn.onclick = saveEditedCard;
+
+  const modal = new bootstrap.Modal(document.getElementById('cardModal'));
+  modal.show();
+}
+
+function openAddModal() {
+  currentEditId = null;
+  document.getElementById('cardTitle').value = '';
+  document.getElementById('cardText').value = '';
+  document.getElementById('cardModalLabel').innerText = 'Add New Card';
+
+  const saveBtn = document.querySelector('#cardModal .btn-primary');
+  saveBtn.onclick = addNewCard;
+
+  const modal = new bootstrap.Modal(document.getElementById('cardModal'));
+  modal.show();
+}
+
+document.getElementById('editCardForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+
+  const index = document.getElementById('editCardIndex').value;
+  const title = document.getElementById('editCardTitle').value.trim();
+  const text = document.getElementById('editCardText').value.trim();
+
+  const cards = JSON.parse(localStorage.getItem('cards')) || [];
+  cards[index] = { title, text };
+  localStorage.setItem('cards', JSON.stringify(cards));
+
+  bootstrap.Modal.getInstance(document.getElementById('editCardModal')).hide();
+  renderCards();
+});
+async function saveEditedCard() {
+  const title = document.getElementById('cardTitle').value;
+  const text = document.getElementById('cardText').value;
+
+  if (!currentEditId) return;
+
+  await fetch(`http://localhost:8080/products/${currentEditId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ title, text })
+  });
+
+  currentEditId = null;
+  bootstrap.Modal.getInstance(document.getElementById('cardModal')).hide();
+  fetchAndRenderCards(); // Перерендерити картки
+}
 // Викликати при завантаженні
-window.onload = renderCards;
+window.onload = fetchAndRenderCards;
     </script>
 </body>
 </html>
