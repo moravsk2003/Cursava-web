@@ -22,7 +22,7 @@ public class User {
     @Email
     private String email;
     @NotBlank(message = "поле пусте")
-    @Size(min = 4, max = 22, message = "Пароль має бути від {4} до {22} символів")
+    //@Size(min = 4, max = 22, message = "Пароль має бути від {4} до {22} символів")
     private String password;
     @Min(0)
     private int age;
