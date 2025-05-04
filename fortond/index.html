@@ -249,7 +249,7 @@
           <h1 class="display-5 fw-bold">Want more options?</h1>
           <p class="col-md-8 fs-4">Log in to your account to have more opportunities to view, comment, rate, and so on!</p>
           <button class="btn btn-primary btn-lg" type="button" onclick="navigateWithFade('logen-in.html')">Login</button>
-          <button class="btn btn-outline-secondary btn-lg px-4" type="button" onclick="fadeAndNavigate('index_in_login.html')">View</button>
+          <button class="btn btn-outline-secondary btn-lg px-4" type="button" onclick="fadeOutPage()">View</button>
         </div>
       </div>
       <div class="album py-5 bg-body-tertiary">
@@ -280,22 +280,6 @@
 </body>
 <body>
   
-    <h1>Тест підключення</h1>
-    <button onclick="fetchData()">Отримати дані</button>
-    <p id="result"></p>
-
-    <script>
-        function fetchData() {
-            fetch('http://localhost:8080/users/hel')
-                .then(response => response.text())
-                .then(data => {
-                    document.getElementById('result').innerText = data;
-                })
-                .catch(error => {
-                    console.error('Помилка:', error);
-                });
-        }
-    </script>
     <script>
       document.addEventListener("DOMContentLoaded", function () {
         const navLinks = document.querySelectorAll("#filter-nav .nav-link");
@@ -316,8 +300,17 @@
       document.body.classList.add('fade-out');
       setTimeout(() => {
         window.location.href = target;
-      }, 500); 
+      }, 500); // тривалість анімації
       }
+      function fadeOutPage() {
+    const block = document.getElementById('fade-block');
+    block.classList.add('fade-out');
+    
+    // Після завершення анімації — ховаємо повністю
+    setTimeout(() => {
+      block.style.display = 'none';
+    }, 500); // Тривалість повинна відповідати transition у CSS
+  }
       function fadeAndNavigate(target) {
         const fadeBlock = document.getElementById('fade-block');
           fadeBlock.classList.add('fade-out');
@@ -328,7 +321,7 @@
   // Функція для відображення карток на сторінці
   function renderCards() {
   const cards = JSON.parse(localStorage.getItem('cards')) || [];
-  const container = document.getElementById('cards-container');
+  const container = document.getElementById('cardContainer');
   container.innerHTML = '';
 
   cards.forEach(card => {
@@ -346,7 +339,6 @@
                 <button type="button" class="btn btn-sm btn-outline-secondary">View</button>
                 <button type="button" class="btn btn-sm btn-outline-secondary">Edit</button>
               </div>
-              <small class="text-body-secondary">Just now</small>
             </div>
           </div>
         </div>

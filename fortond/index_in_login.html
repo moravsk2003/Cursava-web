@@ -326,23 +326,6 @@
 <script defer src="../assets/dist/js/bootstrap.bundle.min.js" ></script>
 </body>
 <body>
-  
-    <h1>Тест підключення</h1>
-    <button onclick="fetchData()">Отримати дані</button>
-    <p id="result"></p>
-
-    <script>
-        function fetchData() {
-            fetch('http://localhost:8080/users/hel')
-                .then(response => response.text())
-                .then(data => {
-                    document.getElementById('result').innerText = data;
-                })
-                .catch(error => {
-                    console.error('Помилка:', error);
-                });
-        }
-    </script>
     <script>
       document.addEventListener("DOMContentLoaded", function () {
         const navLinks = document.querySelectorAll("#filter-nav .nav-link");
@@ -419,7 +402,6 @@ function renderCards() {
                 <button type="button" class="btn btn-sm btn-outline-secondary">View</button>
                 <button type="button" class="btn btn-sm btn-outline-secondary">Edit</button>
               </div>
-              <small class="text-body-secondary">Just now</small>
             </div>
           </div>
         </div>
