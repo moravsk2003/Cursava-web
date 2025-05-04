@@ -9,6 +9,7 @@ import java.util.ArrayList; // <-- Імпортуємо ArrayList
 import java.util.HashSet;   // <-- Імпортуємо HashSet (для Many-to-Many часто використовують Set)
 import java.util.List;      // <-- Імпортуємо List
 import java.util.Set;       // <-- Імпортуємо Set
+
 @Entity
 @Table(name="users")
 @AllArgsConstructor

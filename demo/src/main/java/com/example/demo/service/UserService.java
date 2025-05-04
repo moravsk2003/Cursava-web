@@ -11,13 +11,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import com.example.demo.exception.ResourceNotFoundException;
-//@AllArgsConstructor
-//@RequiredArgsConstructor
+
 @Service
 public class UserService implements UserDetailsService {
     private  final UserRepository userRepository;
@@ -60,7 +57,11 @@ public class UserService implements UserDetailsService {
             throw new RuntimeException("Користувач з таким Email вже існує"); // Тимчасово, до створення UserAlreadyExistsException
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        if (user.getEmail().equals("admin2@gmail.com")){
+            user.setRoles("ADMIN");
+        } else {
         user.setRoles("user");
+        }
         return userRepository.save(user);
     }
     public boolean checkPassword(User user, String rawPassword) {
