@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.CommentUpdateDto;
 import com.example.demo.model.Comment;
 import com.example.demo.model.Product;
 import com.example.demo.model.User; // Припустимо, що у тебе є User модель
@@ -55,6 +56,33 @@ public class CommentService {
         return commentRepository.findByProductId(productId);
     }
 
+
+    // *** НОВИЙ МЕТОД: Оновити коментар з перевіркою автора ***
+    @Transactional
+    public Comment updateComment(Long commentId, CommentUpdateDto updatedCommentDetails, Long currentUserId) {
+        // 1. Знаходимо існуючий коментар
+        Comment existingComment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Коментар з ID '" + commentId + "' не знайдено для оновлення"));
+
+        // 2. Перевірка авторизації: Чи є поточний користувач автором коментаря?
+        // АБО (якщо потрібно) перевірка, чи поточний користувач є адміном.
+        if (!existingComment.getAuthor().getId().equals(currentUserId)) {
+            // Якщо ID автора коментаря не співпадає з ID поточного користувача,
+            // кидаємо виняток (наприклад, AccessDeniedException або інший кастомний)
+            // Тут ми використовуємо RuntimeException як простий приклад,
+            // але в реальному додатку краще мати специфічний виняток авторизації.
+            throw new RuntimeException("Користувач не має прав для редагування цього коментаря."); // Або кинь AccessDeniedException
+        }
+
+        // 3. Оновлюємо тільки текст коментаря з DTO
+        existingComment.setText(updatedCommentDetails.getText());
+
+        // Ми НЕ оновлюємо: ID, автора, продукт, дату створення!
+
+        // 4. Зберігаємо оновлений коментар
+        // Spring Data JPA збереже зміни в рамках транзакції
+        return commentRepository.save(existingComment);
+    }
     // Метод для видалення коментаря (за ID коментаря)
     @Transactional
     public boolean deleteCommentById(Long commentId) {
