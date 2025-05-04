@@ -206,4 +206,41 @@
 <script defer src="../assets/dist/js/bootstrap.bundle.min.js" integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq"></script>
 
     <script defer src="checkout.js"></script></body>
+    <script>
+function fetchData() {
+  document.addEventListener('DOMContentLoaded', function () {
+    fetchData();  // Викликаємо функцію при завантаженні сторінки
+});
+    const token = localStorage.getItem('authToken');
+
+    if (!token) {
+        console.error('Token is missing');
+        return;
+    }
+
+    console.log("Token in fetchData:", token);
+
+    fetch('http://localhost:8080/users/me', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Fetch error: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log("Received user data:", data);
+        document.getElementById('login').innerText = data.name;
+        document.getElementById('email').innerText = data.email;
+    })
+    .catch(error => {
+        console.error('Помилка:', error);
+    });
+}
+    </script>
 </html>
