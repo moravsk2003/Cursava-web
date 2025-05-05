@@ -581,7 +581,7 @@ async function fetchComments(productId) {
         const commentsListDiv = document.getElementById('commentsList');
         commentsListDiv.innerHTML = '<p class="text-muted">Завантаження коментарів...</p>';
         try {
-            const response = await fetch(`${API_BASE_URL}/comments/product/${productId}`);
+            const response = await fetch(`${API_BASE_URL}/comments/product/get/${productId}`);
             if (!response.ok) {
                 throw new Error(`Помилка завантаження коментарів: ${response.status}`);
             }
@@ -629,7 +629,7 @@ async function fetchComments(productId) {
 
                 // Додаємо кнопку видалення (якщо потрібно і якщо це коментар поточного користувача)
                 // Примітка: Потрібно порівнювати ID автора коментаря з ID поточного користувача
-                const currentUserId = getCurrentUserId();
+                //const currentUserId = getCurrentUserId();
                 // Припустимо, ваш Comment має поле authorId
                 // if (comment.authorId && comment.authorId === currentUserId) {
                     const deleteButton = document.createElement('button');
@@ -645,10 +645,10 @@ async function fetchComments(productId) {
         }
     }
  // Функція для надсилання нового коментаря на бекенд
- async function addComment(productId, commentText, authorId) {
+ async function addComment(productId, commentText, ) {
         const commentRequest = {
             text: commentText,
-            authorId: authorId // !!! НЕБЕЗПЕЧНО В РЕАЛЬНОМУ ДОДАТКУ !!!
+            //authorId: authorId // !!! НЕБЕЗПЕЧНО В РЕАЛЬНОМУ ДОДАТКУ !!!
         };
         const token = localStorage.getItem('authToken'); // Потрібен токен для авторизації запиту
 
@@ -773,17 +773,17 @@ async function fetchComments(productId) {
         saveCommentBtn.addEventListener('click', async () => { // Робимо функцію асинхронною
             const commentInput = document.getElementById('commentInput');
             const commentText = commentInput.value.trim();
-            const authorId = getCurrentUserId(); // Отримуємо ID автора (потрібна реалізація)
+            //const authorId = getCurrentUserId(); // Отримуємо ID автора (потрібна реалізація)
 
-            if (!authorId) {
-                 alert("Не вдалося визначити автора коментаря. Увійдіть в систему.");
-                 console.error("Author ID is null or undefined.");
-                 return;
-            }
+            // if (!authorId) {
+            //      alert("Не вдалося визначити автора коментаря. Увійдіть в систему.");
+            //      console.error("Author ID is null or undefined.");
+            //      return;
+            // }
 
             if (commentText && currentProductId !== null) {
                  // Викликаємо функцію для надсилання коментаря на бекенд
-                const success = await addComment(currentProductId, commentText, authorId);
+                const success = await addComment(currentProductId, commentText);
 
                 if (success) {
                     // Очистити поле введення тільки якщо коментар успішно додано
