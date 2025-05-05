@@ -84,7 +84,7 @@ public class CommentController {
 
 
     // Ендпоінт для отримання всіх коментарів до певного продукту
-    @GetMapping("/product/{productId}") // Шлях для отримання коментарів до конкретного продукту
+    @GetMapping("/product/get/{productId}") // Шлях для отримання коментарів до конкретного продукту
     public ResponseEntity<List<Comment>> getCommentsForProduct(@PathVariable Long productId) {
         try {
             List<Comment> comments = commentService.getCommentsByProductId(productId);
@@ -103,8 +103,25 @@ public class CommentController {
             // У реальному додатку, перевіряй, чи поточний користувач має право видаляти цей коментар
             // Long currentUserId = ... отримати з контексту аутентифікації
             // boolean deleted = commentService.deleteCommentByIdIfAuthor(commentId, currentUserId); // Використовуй такий метод
+            // 1. Отримуємо інформацію про поточного аутентифікованого користувача
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-            boolean deleted = commentService.deleteCommentById(commentId); // Використовуємо простий метод з сервісу
+            // Перевіряємо, чи користувач аутентифікований (цей ендпоінт має бути захищеним)
+            if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null); // 401 Unauthorized
+            }
+
+            // Отримуємо UserDetails аутентифікованого користувача
+            Object principal = authentication.getPrincipal();
+            if (!(principal instanceof UserDetails)) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null); // Несподіваний тип Principal
+            }
+            String currentUsername = ((UserDetails) principal).getUsername(); // Отримуємо логін (email)
+
+                // 2. Знаходимо повний об'єкт User для поточного користувача за його логіном (email)
+            User currentUser = userService.getUserByEmail(currentUsername);
+            Long authorId = currentUser.getId();
+            boolean deleted = commentService.deleteCommentById(commentId,authorId); // Використовуємо простий метод з сервісу
 
             if (deleted) {
                 return ResponseEntity.noContent().build(); // 204 No Content при успішному видаленні
@@ -116,10 +133,4 @@ public class CommentController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while deleting the comment"); // 500
         }
     }
-
-
-    // ----- DTO для вхідних даних коментаря -----
-    // Створи окремий клас CommentRequest у пакеті com.example.demo.model.dto або схожому
-    // Наприклад:
-
 }

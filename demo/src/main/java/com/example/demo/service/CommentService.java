@@ -5,6 +5,7 @@ import com.example.demo.model.Comment;
 import com.example.demo.model.Product;
 import com.example.demo.model.User; // Припустимо, що у тебе є User модель
 import com.example.demo.repository.CommentRepository;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -82,7 +83,36 @@ public class CommentService {
     }
     // Метод для видалення коментаря (за ID коментаря)
     @Transactional
-    public boolean deleteCommentById(Long commentId) {
+    public boolean deleteCommentById(Long commentId,Long currentUserId) {
+        // 1. Знаходимо продукт, який потрібно видалити
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Продукт з ID '" + commentId + "' не знайдено для видалення"));
+
+        // 2. *** ДОДАНО/ЗМІНЕНО: Перевірка авторизації ***
+        try {
+            User currentUser = userService.getUserById(currentUserId);
+
+            // Перевіряємо, чи користувач є АДМІНОМ
+            boolean isAdmin = currentUser.getRoles() != null && currentUser.getRoles().equals("ADMIN"); // Можливо, проблема з цим порівнянням
+
+            // Якщо користувач НЕ є адміном, виконуємо додаткові перевірки
+            if (!isAdmin) {
+                // *** ВАЖЛИВО: Перевіряємо, чи у продукту ВЗАГАЛІ є творець перед викликом getCreator().getId() ***
+                if (comment.getAuthor() != null) { // <-- ЦЯ ПЕРЕВІРКА МАЄ БУТИ
+                    // Якщо творець є, перевіряємо, чи поточний користувач НЕ є цим творцем
+                    if (!comment.getAuthor().getId().equals(currentUserId)) { // <-- Цей рядок або наступний може бути рядком 46
+                        throw new AccessDeniedException("Користувач не є творцем продукту і не має прав адміністратора.");
+                    }
+                } else {
+                    // Якщо творця НЕМАЄ (null), і користувач НЕ адмін
+                    // -> відмовляємо в доступі (бо видаляти продукти без творця може тільки адмін за цією логікою)
+                    throw new AccessDeniedException("Лише адміністратор може видаляти продукти без вказаного творця."); // <-- Інший можливий рядок 46
+                }
+            }
+
+        } catch (ResourceNotFoundException e) {
+            throw new RuntimeException("Помилка авторизації: не знайдено поточного користувача.", e);
+        }
         if (commentRepository.existsById(commentId)) {
             commentRepository.deleteById(commentId);
             return true;

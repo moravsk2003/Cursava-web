@@ -63,8 +63,7 @@ public class SecurityConfig {
         return daoAuthenticationProvider;
     }
 
-    // Бін SecurityFilterChain, який налаштовує правила доступу
-    // Бін SecurityFilterChain (МОДИФІКОВАНО для додавання JWT фільтра)
+    // Бін SecurityFilterChain, який налаштовує правила доступу(МОДИФІКОВАНО для додавання JWT фільтра)
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtRequestFilter jwtRequestFilter) throws Exception { // Впроваджуємо JwtRequestFilter як аргумент
         http
@@ -79,7 +78,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll() // Ендпоінти аутентифікації публічні
                         // Інші публічні ендпоінти (якщо є)
-                        .requestMatchers("/users/hel", "/product/hel","/auth/register,","/users","/products").permitAll()
+                        .requestMatchers("/users/hel", "/product/hel","/auth/register,","/users","/products","comments/product/get/{productId}").permitAll()
                         // Налаштуйте публічні GET ендпоінти продуктів/коментарів, якщо вони доступні без аутентифікації
                         // .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll() // Приклад: всі GET запити до /api/products
                         // .requestMatchers(HttpMethod.GET, "/api/comments/product/**").permitAll() // Приклад: всі GET запити до коментарів продукту
@@ -89,7 +88,7 @@ public class SecurityConfig {
                 // Налаштовуємо безстатусні сесії
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-                // *** ДОДАНО: Додаємо наш JWT фільтр до ланцюжка фільтрів ***
+                // Додаємо JWT фільтр до ланцюжка фільтрів ***
                 // Розміщуємо його перед стандартним фільтром UsernamePasswordAuthenticationFilter
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
 
