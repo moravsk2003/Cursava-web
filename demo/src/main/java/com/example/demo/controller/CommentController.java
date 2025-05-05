@@ -133,10 +133,4 @@ public class CommentController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while deleting the comment"); // 500
         }
     }
-
-
-    // ----- DTO для вхідних даних коментаря -----
-    // Створи окремий клас CommentRequest у пакеті com.example.demo.model.dto або схожому
-    // Наприклад:
-
 }

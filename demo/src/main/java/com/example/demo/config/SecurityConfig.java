@@ -63,8 +63,7 @@ public class SecurityConfig {
         return daoAuthenticationProvider;
     }
 
-    // Бін SecurityFilterChain, який налаштовує правила доступу
-    // Бін SecurityFilterChain (МОДИФІКОВАНО для додавання JWT фільтра)
+    // Бін SecurityFilterChain, який налаштовує правила доступу(МОДИФІКОВАНО для додавання JWT фільтра)
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtRequestFilter jwtRequestFilter) throws Exception { // Впроваджуємо JwtRequestFilter як аргумент
         http
@@ -89,7 +88,7 @@ public class SecurityConfig {
                 // Налаштовуємо безстатусні сесії
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-                // *** ДОДАНО: Додаємо наш JWT фільтр до ланцюжка фільтрів ***
+                // Додаємо JWT фільтр до ланцюжка фільтрів ***
                 // Розміщуємо його перед стандартним фільтром UsernamePasswordAuthenticationFilter
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
 

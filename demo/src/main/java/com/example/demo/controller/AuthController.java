@@ -10,7 +10,6 @@ import org.springframework.http.HttpStatus; // Для статус кодів
 import org.springframework.http.ResponseEntity; // Для повернення ResponseEntity
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-// *** ДОДАНО: Імпорти Spring Security для аутентифікації ***
 import org.springframework.security.authentication.AuthenticationManager; // Менеджер аутентифікації
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken; // Для створення токена аутентифікації
 import org.springframework.security.core.Authentication; // Результат аутентифікації
@@ -20,7 +19,6 @@ import com.example.demo.util.JwtUtil;
 import java.util.Map;
 
 @RestController
-//@CrossOrigin(origins = "http://localhost:3000") // Дозволяємо запити з фронтенду
 @RequestMapping("/auth") // Базовий шлях для аутентифікації
 public class AuthController {
 
@@ -66,7 +64,6 @@ public class AuthController {
     }
 
     // Ендпоінт для аутентифікації (логіну) користувача
-    // !!! ЦЕ ПОТРЕБУВАТИМЕ ДОДАТКОВИХ КРОКІВ ДЛЯ JWT ТОКЕНІВ ПІСЛЯ УСПІШНОЇ АУТЕНТИФІКАЦІЇ !!!
     @PostMapping("/login") // POST /api/auth/login
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody AuthRequest authRequest) {
         try {
@@ -80,7 +77,7 @@ public class AuthController {
             );
             // 2. Якщо аутентифікація успішна, отримуємо UserDetails аутентифікованого користувача
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-            // *** ДОДАНО: Генеруємо JWT токен ***
+            //Генеруємо JWT токен
             String jwtToken = jwtUtil.generateToken(userDetails);
 
             // 3. Повертаємо відповідь, що містить згенерований токен

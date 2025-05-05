@@ -177,7 +177,6 @@ public class ProductController {
              return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Could not retrieve current user"); // Або 401/403
          }
 
-
          try {
              // Викликаємо сервісний метод для видалення, передаючи ID продукту та ID користувача
              // commentService.updateComment(id, updatedCommentDetails, currentUser.getId()); // Приклад для коментарів
@@ -191,17 +190,11 @@ public class ProductController {
              // Якщо продукт не знайдено, повертаємо 404 Not Found (обробляється GlobalExceptionHandler)
              throw e;
          }
-        /*
-         // *** ДОДАНО: Обробка винятку авторизації (якщо логіка в сервісі кидає AccessDeniedException) ***
-        catch (AccessDeniedException e) {
-             e.printStackTrace();
-             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User does not have permission to delete this product."); // 403
-        }
-        */
          catch (Exception e) {
              e.printStackTrace();
              // Загальна помилка сервера
              return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while deleting the product."); // 500
          }
      }
+
 }
