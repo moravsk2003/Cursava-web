@@ -262,6 +262,27 @@
   </header>
 </main>
 
+<div class="modal fade" id="commentModal" tabindex="-1" aria-labelledby="commentModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="commentModalLabel">Коментарі</h5> <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрити"></button>
+      </div>
+      <div class="modal-body">
+        <div id="commentInputSection" style="display: none;"> <textarea class="form-control" id="commentInput" rows="4" placeholder="Введіть коментар..."></textarea>
+           <button type="button" class="btn btn-primary mt-2" id="saveCommentBtn">Зберегти коментар</button>
+        </div>
+        
+        <div id="commentsList" style="margin-top: 20px;">
+          </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрити</button>
+        </div>
+    </div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
   <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
     <div class="col-md-4 d-flex align-items-center">
@@ -279,120 +300,270 @@
 <script defer src="../assets/dist/js/bootstrap.bundle.min.js" ></script>
 </body>
 <body>
-  
+  <script defer src="../assets/dist/js/bootstrap.bundle.min.js" ></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    document.addEventListener("DOMContentLoaded", function () {
+   let currentProductId = null;
+  const API_BASE_URL = 'http://localhost:8080'; // Переконайтесь, що URL правильний
+
+  // Функція для завантаження коментарів з бекенду
+  async function fetchComments(productId) {
+    const commentsListDiv = document.getElementById('commentsList');
+    if (!commentsListDiv) {
+        console.error("Element #commentsList not found!");
+        return;
+    }
+    commentsListDiv.innerHTML = '<p class="text-muted">Завантаження коментарів...</p>';
+    try {
+      // Викликаємо GET ендпоінт для отримання коментарів
+      const response = await fetch(`${API_BASE_URL}/comments/product/get/${productId}`);
+      if (!response.ok) {
+        throw new Error(`Помилка завантаження коментарів: ${response.status}`);
+      }
+      const comments = await response.json();
+      displayComments(comments); // Передаємо завантажені коментарі для відображення
+    } catch (error) {
+      console.error('Не вдалося завантажити коментарі:', error);
+      commentsListDiv.innerHTML = '<p class="text-danger">Не вдалося завантажити коментарі.</p>';
+    }
+  }
+
+  // Функція для відображення списку коментарів
+  function displayComments(comments) {
+    const commentsListDiv = document.getElementById('commentsList');
+    if (!commentsListDiv) return;
+
+    commentsListDiv.innerHTML = ''; // Очистити
+
+    if (!comments || comments.length === 0) {
+      commentsListDiv.innerHTML = '<p class="text-muted">Коментарів ще немає.</p>';
+    } else {
+      comments.forEach(comment => {
+        const commentElement = document.createElement('div');
+        commentElement.classList.add('mb-2', 'p-2', 'border', 'rounded'); // Стилізація
+
+        const textElement = document.createElement('p');
+        textElement.textContent = comment.text || 'Без тексту'; // Перевірка на null/undefined
+        textElement.classList.add('mb-1');
+        commentElement.appendChild(textElement);
+
+        // Додаємо інформацію про автора (якщо доступно в об'єкті коментаря)
+        const metaElement = document.createElement('small');
+        metaElement.classList.add('text-muted');
+        let authorInfo = 'Автор: Невідомо'; // Заглушка за замовчуванням
+
+        // Припустимо, що об'єкт Comment з бекенду містить authorId
+        if (comment.authorId) {
+             authorInfo = `Автор ID: ${comment.authorId}`; // Показуємо ID автора
+             // Якщо бекенд повертає ім'я або іншу інфу про автора, використовуйте її:
+             // if (comment.author && comment.author.username) {
+             //    authorInfo = `Автор: ${comment.author.username}`;
+             // }
+        }
+
+        // Додаємо дату, якщо доступно
+        if (comment.createdAt) {
+             try {
+                 const date = new Date(comment.createdAt);
+                 authorInfo += ` | Дата: ${date.toLocaleString()}`; // Форматуємо дату
+             } catch (e) {
+                 console.error("Помилка парсингу дати:", e, comment.createdAt);
+             }
+        }
+
+        metaElement.textContent = authorInfo;
+        commentElement.appendChild(metaElement);
+
+        // НЕ додаємо кнопки видалення чи редагування на цій сторінці
+
+        commentsListDiv.appendChild(commentElement);
+      });
+    }
+  }
+
+  // Функція для налаштування обробників подій кнопок на картках
+  function setupCardButtonListeners() {
+    const commentModalEl = document.getElementById('commentModal');
+    const commentModal = commentModalEl ? new bootstrap.Modal(commentModalEl) : null;
+
+    // Обробник для кнопки "View"
+    document.querySelectorAll('.view-btn').forEach(button => {
+      button.addEventListener('click', () => {
+        currentProductId = button.getAttribute('data-product-id');
+        if (!currentProductId) {
+          console.error("Не вдалося отримати ID продукту з кнопки View.");
+          return;
+        }
+        console.log("Відкрито коментарі для продукту ID:", currentProductId);
+
+        if (commentModal) {
+          // Завантажити і відобразити коментарі з бекенду
+          fetchComments(currentProductId);
+
+          commentModal.show();
+        } else {
+          console.error("Модальне вікно коментарів не знайдено!");
+        }
+      });
+    });
+
+    // На сторінці index.html НЕ додаємо обробники для кнопок Edit та Delete
+  }
+
+
+  // Оновлена функція renderCards для index.html
+  function renderCards(products, saveToLocalStorage = true) {
+    const container = document.getElementById('cardContainer');
+    if (!container) return;
+
+    container.innerHTML = '';
+
+    if (!products || products.length === 0) {
+      container.innerHTML = '<p class="text-center">Продукти не знайдено.</p>';
+      return;
+    }
+
+    // Синхронізація з localStorage (якщо увімкнено)
+    if (saveToLocalStorage) {
+      const simplifiedCards = products.map(p => ({
+        id: p.id, // Зберігаємо ID продукту
+        title: p.originalTitle || 'Без назви',
+        text: p.description || 'Без опису',
+        type: p.type || 'N/A'
+      }));
+      localStorage.setItem('cards', JSON.stringify(simplifiedCards));
+    }
+
+    products.forEach(product => {
+      const title = product.originalTitle || 'Без назви';
+      const description = product.description || 'Без опису';
+      const type = product.type || 'N/A';
+      const productId = product.id; // Використовуємо ID з продукту
+
+      const cardHtml = `
+        <div class="col">
+            <div class="card shadow-sm">
+              <svg class="bd-placeholder-img card-img-top" width="100%" height="225">
+                <rect width="100%" height="100%" fill="#55595c"/>
+                <text x="50%" y="50%" fill="#eceeef" dy=".3em">${title}</text>
+              </svg>
+              <div class="card-body">
+                <p class="card-text">${description}</p>
+                <div class="d-flex justify-content-between align-items-center">
+                  <div class="btn-group">
+                    <button type="button" class="btn btn-sm btn-outline-secondary view-btn" data-product-id="${productId}">View</button>
+                     </div>
+                  <small class="text-body-secondary">Тип: ${type}</small>
+                </div>
+              </div>
+            </div>
+          </div>
+      `;
+
+      container.innerHTML += cardHtml;
+    });
+
+    setupCardButtonListeners(); // Налаштовуємо обробники після додавання карток
+  }
+
+
+  // Функція для завантаження карток з localStorage (без змін)
+  function renderCardsFromLocalStorage() {
+    console.log("Відображення карток з localStorage.");
+    const saved = JSON.parse(localStorage.getItem('cards')) || [];
+    const products = saved.map(card => ({ // Використовуємо збережений ID
+        id: card.id,
+        originalTitle: card.title,
+        description: card.text,
+        type: card.type
+    }));
+    renderCards(products, false); // не оновлюємо localStorage знову
+  }
+
+
+  // Ініціалізація при завантаженні сторінки
+  document.addEventListener("DOMContentLoaded", function () {
+      // Обробники фільтрів (без змін)
       const navLinks = document.querySelectorAll("#filter-nav .nav-link");
-  
       navLinks.forEach(link => {
         link.addEventListener("click", function (e) {
           e.preventDefault();
-  
           navLinks.forEach(l => l.classList.remove("active"));
           this.classList.add("active");
-  
           const filter = this.getAttribute("data-filter");
-          console.log("Фільтр: ", filter);
+          fetchAndRenderProducts(filter); // Завантаження з бекенду
         });
       });
-    });
+
+      // Завантаження продуктів при старті
+      // Спочатку спробуємо завантажити з бекенду, якщо не вийде - з localStorage
+      setTimeout(() => {
+         fetchAndRenderProducts('all').catch(() => {
+             console.log("Не вдалося завантажити продукти з бекенду, спроба з localStorage.");
+             renderCardsFromLocalStorage();
+         });
+      }, 50); // Невелика затримка для уникнення конфліктів
+  });
+
+  // Функція fetchAndRenderProducts (без змін, але додаємо .catch в DOMContentLoaded)
+    async function fetchAndRenderProducts(filter) {
+        const container = document.getElementById('cardContainer');
+        if (container) {
+             container.innerHTML = '<p class="text-center">Завантаження продуктів...</p>';
+        }
+
+        let url = `${API_BASE_URL}/products`; // Використовуємо API_BASE_URL
+
+        if (filter && filter !== 'all') {
+            url = `${API_BASE_URL}/products/by-type?type=${filter.toUpperCase()}`; // Використовуємо API_BASE_URL
+        }
+
+        try {
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: { 'Accept': 'application/json' }
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Помилка завантаження продуктів: ${response.status} ${errorText}`);
+            }
+
+            const products = await response.json();
+            renderCards(products, true); // збереження включено
+
+        } catch (error) {
+            console.error('Сталася помилка при завантаженні продуктів:', error);
+            if (container) {
+                container.innerHTML = `<p class="text-danger text-center">Не вдалося завантажити продукти: ${error.message}</p>`;
+            }
+            // Тут вже не викликаємо renderCardsFromLocalStorage, оскільки це робиться в catch блоці DOMContentLoaded
+            throw error; // Перекидаємо помилку далі
+        }
+    }
+
+
+    // Інші функції (navigateWithFade, fadeOutPage) - без змін
     function navigateWithFade(target) {
-    document.body.classList.add('fade-out');
-    setTimeout(() => {
-      window.location.href = target;
-    }, 500); // тривалість анімації
+        document.body.classList.add('fade-out');
+        setTimeout(() => {
+          window.location.href = target;
+        }, 500); // тривалість анімації
     }
     function fadeOutPage() {
-  const block = document.getElementById('fade-block');
-  block.classList.add('fade-out');
-  
-  // Після завершення анімації — ховаємо повністю
-  setTimeout(() => {
-    block.style.display = 'none';
-  }, 500); // Тривалість повинна відповідати transition у CSS
-}
-    function fadeAndNavigate(target) {
-      const fadeBlock = document.getElementById('fade-block');
-        fadeBlock.classList.add('fade-out');
-        setTimeout(() => {
-        window.location.href = target; 
-        }, 500); 
+        const block = document.getElementById('fade-block');
+        if (block) { // Перевірка на існування елемента
+             block.classList.add('fade-out');
+
+             // Після завершення анімації — ховаємо повністю
+             setTimeout(() => {
+                 block.style.display = 'none';
+             }, 500); // Тривалість повинна відповідати transition у CSS
+        }
     }
-// Функція для відображення карток на сторінці
-function renderCards(products, saveToLocalStorage = true) {
-const container = document.getElementById('cardContainer');
-if (!container) return;
 
-container.innerHTML = '';
 
-if (!products || products.length === 0) {
-  container.innerHTML = '<p class="text-center">Продукти не знайдено.</p>';
-  return;
-}
 
-// Синхронізація з localStorage (якщо увімкнено)
-if (saveToLocalStorage) {
-  const simplifiedCards = products.map(p => ({
-    title: p.originalTitle || 'Без назви',
-    text: p.description || 'Без опису',
-    type: p.type || 'N/A'
-  }));
-  localStorage.setItem('cards', JSON.stringify(simplifiedCards));
-}
-
-products.forEach(product => {
-  const title = product.originalTitle || 'Без назви';
-  const description = product.description || 'Без опису';
-  const type = product.type || 'N/A';
-  const productId = product.id;
-
-  const cardHtml = `
-    <div class="col">
-        <div class="card shadow-sm">
-          <svg class="bd-placeholder-img card-img-top" width="100%" height="225">
-            <rect width="100%" height="100%" fill="#55595c"/>
-            <text x="50%" y="50%" fill="#eceeef" dy=".3em">${title}</text>
-          </svg>
-          <div class="card-body">
-            <p class="card-text">${description}</p>
-            <div class="d-flex justify-content-between align-items-center">
-              <div class="btn-group">
-                <button type="button" class="btn btn-sm btn-outline-secondary view-btn" data-product-id="${productId}">View</button>
-
-              </div>
-              <small class="text-body-secondary">Тип: ${type}</small>
-            </div>
-          </div>
-        </div>
-      </div>
-  `;
-
-  container.innerHTML += cardHtml;
-});
-
-setupCardButtonListeners(); // Один обробник подій на всі кнопки
-}
-
-fetch('/products')
-  .then(res => res.json())
-  .then(products => {
-    renderCards(products, true); // збереження включено
-  })
-  .catch(error => {
-    console.error("Помилка:", error);
-    renderCardsFromLocalStorage();
-  });
-function renderCardsFromLocalStorage() {
-const saved = JSON.parse(localStorage.getItem('cards')) || [];
-const products = saved.map((card, i) => ({
-  id: i,
-  originalTitle: card.title,
-  description: card.text,
-  type: card.type // бо в localStorage типу немає
-}));
-renderCards(products, false); // не оновлюємо localStorage знову
-}
-window.onload = renderCardsFromLocalStorage();
   </script>
 </body>
 </html>
