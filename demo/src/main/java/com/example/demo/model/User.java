@@ -16,6 +16,8 @@ import java.util.Set;       // <-- Імпортуємо Set
 @NoArgsConstructor
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@EqualsAndHashCode(exclude = {"productsCreated", "comments", "favoritedByProducts", "roles"}) // Виключіть поля колекцій та інші, якщо вони є
+@ToString(exclude = {"productsCreated", "comments", "favoritedByProducts", "roles"}) // Виключіть ті самі поля
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -42,6 +42,7 @@ public class CommentService {
         Comment comment = new Comment();
         comment.setText(commentText);
         comment.setProduct(product); // Встановлюємо продукт
+        product.addComment(comment);
         comment.setAuthor(author);   // Встановлюємо автора
         // createdAt буде встановлено автоматично через @PrePersist у моделі
 

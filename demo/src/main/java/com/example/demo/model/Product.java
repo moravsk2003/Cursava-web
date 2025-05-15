@@ -18,6 +18,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @NoArgsConstructor
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@EqualsAndHashCode(exclude = {"comments", "creator", "favoritedByUsers"}) // Виключіть поля колекцій та поля ManyToOne/OneToOne
+@ToString(exclude = {"comments", "creator", "favoritedByUsers"}) // Виключіть ті самі поля
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
