@@ -8,11 +8,6 @@ import lombok.AllArgsConstructor; // Lombok
 @NoArgsConstructor // Конструктор без аргументів
 @AllArgsConstructor // Конструктор з усіма аргументами
 public class AuthResponse {
-
-    // Поле для токена (наприклад, JWT)
     private String token;
 
-    // Можна додати іншу корисну інформацію про користувача
-     //private String email;
-     //private String name;
 }
