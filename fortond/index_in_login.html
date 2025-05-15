@@ -257,13 +257,13 @@
     <div class="nav-scroller bg-body shadow-sm">
       <nav class="nav nav-pills justify-content-center" id="filter-nav">
         <a class="nav-link active" data-filter="all" href="#">Все</a>
-        <a class="nav-link" data-filter="anime" href="#">Аніме</a>
-        <a class="nav-link" data-filter="book" href="#">Книги</a>
-        <a class="nav-link" data-filter="manhva" href="#">Манхва</a>
-        <a class="nav-link" data-filter="manhvua" href="#">Манхвуа</a>
-        <a class="nav-link" data-filter="manga" href="#">Манга</a>
-        <a class="nav-link" data-filter="film" href="#">Фільм</a>
-        <a class="nav-link" data-filter="web_nowela" href="#">Веб новели</a>
+        <a class="nav-link" data-filter="ANIME" href="#">Аніме</a>
+        <a class="nav-link" data-filter="Book" href="#">Книги</a>
+        <a class="nav-link" data-filter="Manhva" href="#">Manhva</a>
+        <a class="nav-link" data-filter="Manhvua" href="#">Манхвуа</a>
+        <a class="nav-link" data-filter="Manga" href="#">Манга</a>
+        <a class="nav-link" data-filter="Film" href="#">Фільм</a>
+        <a class="nav-link" data-filter="Nowela" href="#">Веб новели</a>
         <button class="btn btn-primary ms-3" id="add-card-button" style="display: none;" onclick="openAddModal()">Додати обзор</button> </nav>
     </div>
   </header>
@@ -291,7 +291,7 @@
                 <option value="">Виберіть тип обзора</option>
                 <option value="Anime">Аніме</option>
                 <option value="Book">Книги</option>
-                <option value="Manhva">Манхва</option>
+                <option value="Manhva">Manhva</option>
                 <option value="Manhvua">Манхвуа</option>
                 <option value="Manga">Манга</option>
                 <option value="Film">Фільм</option>
@@ -330,12 +330,12 @@
               <select class="form-select" id="editCardType" required>
                 <option value="">Виберіть тип обзора</option>
                 <option value="ANIME">Anime</option>
-                <option value="BOOK">Book</option>
-                <option value="ANIME">Манхва</option>
-                <option value="ANIME">Манхвуа</option>
-                <option value="MOVIE">Манга</option>
-                <option value="MOVIE">Фільм</option>
-                <option value="GAME">Веб новели</option>
+                <option value="Book">Book</option>
+                <option value="Manhva">Manhva</option>
+                <option value="Manhvua">Манхвуа</option>
+                <option value="Manga">Манга</option>
+                <option value="Film">Фільм</option>
+                <option value="Nowela">Веб новели</option>
               </select>
             </div>
           </div>
@@ -466,7 +466,7 @@
       let url = 'http://localhost:8080/products';
 
       if (filter && filter !== 'all') {
-          url = `http://localhost:8080/products/by-type?type=${filter.toUpperCase()}`;
+          url = `http://localhost:8080/products/by-type?type=${filter}`;
       }
 
       try {

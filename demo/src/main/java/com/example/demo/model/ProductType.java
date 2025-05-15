@@ -9,4 +9,5 @@ public enum ProductType {
     Manga,
     Manhva,
     Manhvua,
+    BOOK,
 }
