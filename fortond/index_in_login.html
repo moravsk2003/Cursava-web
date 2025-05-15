@@ -295,7 +295,7 @@
                 <option value="Manhvua">Манхвуа</option>
                 <option value="Manga">Манга</option>
                 <option value="Film">Фільм</option>
-                <option value="Web novela">Веб новели</option>
+                <option value="Nowela">Веб новели</option>
               </select>
             </div>
           </div>
@@ -466,7 +466,7 @@
       let url = 'http://localhost:8080/products';
 
       if (filter && filter !== 'all') {
-          url = `http://localhost:8080/products/by-type?type=${filter}`;
+          url = `http://localhost:8080/products/by-type?type=${filter.toUpperCase()}`;
       }
 
       try {

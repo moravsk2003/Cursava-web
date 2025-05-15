@@ -10,4 +10,10 @@ public enum ProductType {
     Manhva,
     Manhvua,
     BOOK,
+    MANHVA,
+    FILM,
+    MANHVUA,
+    MANGA,
+    NOWELA,
+    
 }
