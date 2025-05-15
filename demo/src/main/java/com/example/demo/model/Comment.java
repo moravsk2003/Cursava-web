@@ -3,9 +3,7 @@ package com.example.demo.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime; // Для збереження дати і часу створення коментаря
 
@@ -14,6 +12,8 @@ import java.time.LocalDateTime; // Для збереження дати і ча�
 @Data // Анотація Lombok для автоматичного створення гетерів, сетерів, toString, equals і hashCode
 @NoArgsConstructor // Анотація Lombok для створення конструктора без аргументів
 @AllArgsConstructor // Анотація Lombok для створення конструктора з усіма аргументами
+@EqualsAndHashCode(exclude = {"author", "product"}) // Виключаємо зв'язки для equals/hashCode
+@ToString(exclude = {"author", "product"}) // Виключаємо зв'язки для toString
 public class Comment {
 
     @Id // Позначає поле як первинний ключ
