@@ -12,8 +12,6 @@ public class ResourceNotFoundException extends RuntimeException {
         super(message);
     }
 
-    // Можна додати інші конструктори, якщо потрібно,
-    // наприклад, з причиною (Throwable cause)
     public ResourceNotFoundException(String message, Throwable cause) {
         super(message, cause);
     }

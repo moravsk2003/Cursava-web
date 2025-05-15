@@ -6,10 +6,9 @@ import lombok.NoArgsConstructor; // Конструктор без аргумен
 
 import java.util.Date; // Можна використовувати java.util.Date або java.time.LocalDateTime
 
-@Data // Генерує гетери, сетери, toString, equals, hashCode
-@NoArgsConstructor // Генерує конструктор без аргументів
+@Data
+@NoArgsConstructor
 public class AppError {
-
     // Статус код помилки (наприклад, 404 для ResourceNotFound)
     private int statusCode;
 

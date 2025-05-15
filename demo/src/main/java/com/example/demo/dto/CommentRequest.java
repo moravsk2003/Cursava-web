@@ -5,14 +5,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data // Гетери, сетери, toString
-@NoArgsConstructor // Конструктор без аргументів
-@AllArgsConstructor // Конструктор з усіма аргументами
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class CommentRequest {
-
     @NotBlank(message = "Текст коментаря не може бути пустим")
     private String text;
 
-    // !!! ПОЛЕ authorId ВИДАЛЕНО !!! Воно не повинно прийматися з фронтенду.
-    // Автор визначається на бекенді за аутентифікованим користувачем.
 }

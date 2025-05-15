@@ -26,12 +26,7 @@ public class UserService implements UserDetailsService {
     }
     @Transactional // Видалення має виконуватися в транзакції
     public void clearYourTable() {
-        // Варіант 1: deleteAll() - може бути повільнішим для великих таблиць, видаляє сутності по черзі
-        // yourEntityRepository.deleteAll();
-
-        // Варіант 2: deleteAllInBatch() - зазвичай швидше, виконує один SQL DELETE запит
         userRepository.deleteAllInBatch();
-
         System.out.println("Таблиця YourEntity очищена.");
     }
     public List<User> getAllUsers(){
@@ -74,10 +69,6 @@ public class UserService implements UserDetailsService {
         if (userRepository.existsById(userId)) {
             // Якщо існує, видаляємо його
             userRepository.deleteById(userId);
-            // Можна додатково перевірити, чи дійсно він видалився, але deleteById
-            // зазвичай працює як очікується, або кидає виняток при проблемах.
-            // Для простоти, припустимо, що якщо existsById було true, і deleteById
-            // не кинув виняток, то видалення було успішним.
             return true; // Користувача знайдено і видалено
         } else {
             return false; // Користувача з таким ID не знайдено
@@ -85,23 +76,16 @@ public class UserService implements UserDetailsService {
     }
     @Override // Вказує, що цей метод перевизначає метод з батьківського інтерфейсу
     @Transactional // Завантаження даних користувача також може бути транзакційним
-    // loadUserByUsername використовується Spring Security для завантаження даних користувача за логіном
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         // Логіном є email користувача
         User user = userRepository.findByEmail(username)
                 // Якщо користувача не знайдено, кидаємо стандартний для Spring Security виняток
                 .orElseThrow(() -> new UsernameNotFoundException(String.format("Користувача '%s' не знайдено", username)));
 
-        // Повертаємо об'єкт Spring Security UserDetails
-        // Цей об'єкт містить логін, пароль та список повноважень (ролей) користувача.
-        // Тобі потрібно буде отримати ролі користувача з твоєї моделі User,
-        // якщо ти їх зберігаєш. Якщо ні, можна задати роль за замовчуванням, як тут.
+
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(), // Логін (email)
                 user.getPassword(), // Пароль (хешований)
-                // Список повноважень (ролей) користувача
-                // Для простоти, припустимо, що всі користувачі мають роль "ROLE_USER".
-                // У реальному проекті ти будеш завантажувати ролі з моделі User.
                 Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")) // Приклад з фіксованою роллю
         );
     }
@@ -111,17 +95,11 @@ public class UserService implements UserDetailsService {
         // 1. Знаходимо існуючого користувача за ID
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Користувача з ID '" + id + "' не знайдено для оновлення"));
-
         // 2. Оновлюємо дозволені поля з DTO
-        // Важливо: оновлюємо ТІЛЬКИ ті поля, які дозволено змінювати через цей ендпоінт
         existingUser.setName(userUpdateDetails.getName());
         existingUser.setAge(userUpdateDetails.getAge());
         existingUser.setPhoneNumber(userUpdateDetails.getPhoneNumber());
 
-        // Ми НЕ оновлюємо: id, email, password, roles!
-
-        // 3. Зберігаємо оновленого користувача
-        // Spring Data JPA збереже зміни в рамках транзакції
         return userRepository.save(existingUser);
     }
 }

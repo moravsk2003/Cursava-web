@@ -26,13 +26,12 @@ public class RegistrationRequest {
     @Pattern(regexp = "\\d{12}",message = "phon number muct be 12 digsts")
     private String phoneNumber;
 
-    // Можна додати метод для конвертації в сутність User
+    // метод для конвертації в сутність User
     public User toUser() {
         User user = new User();
         user.setName(this.name);
         user.setEmail(this.email);
         user.setPassword(this.password); // Пароль буде хешовано в сервісі
-        // Встанови інші поля, якщо вони є в DTO
         user.setAge(this.age);
         user.setPhoneNumber(this.phoneNumber);
         return user;

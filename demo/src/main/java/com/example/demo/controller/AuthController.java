@@ -44,13 +44,9 @@ public class AuthController {
             // Викликаємо метод сервісу для створення користувача
             // Сервіс сам хешує пароль і зберігає користувача
             User registeredUser = userService.createUser(userToRegister);
-
-            // Успішна реєстрація
-            // Не повертаємо повний об'єкт User з паролем!
-            // Можна повернути DTO без пароля або просто повідомлення про успіх.
             return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "Користувача успішно зареєстровано!"));
 
-        } catch (RuntimeException e) { // Можна ловити більш специфічні винятки, наприклад UserAlreadyExistsException
+        } catch (RuntimeException e) { //специфічні винятки, наприклад UserAlreadyExistsException
             e.printStackTrace();
             // Якщо користувач з таким email вже існує, сервіс кидає виняток.
             // Можна обробити тут специфічний виняток UserAlreadyExistsException
@@ -64,7 +60,7 @@ public class AuthController {
     }
 
     // Ендпоінт для аутентифікації (логіну) користувача
-    @PostMapping("/login") // POST /api/auth/login
+    @PostMapping("/login") // POST /auth/login
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody AuthRequest authRequest) {
         try {
             System.out.println("Attempting login with email: " + authRequest.getEmail());
@@ -79,14 +75,11 @@ public class AuthController {
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
             //Генеруємо JWT токен
             String jwtToken = jwtUtil.generateToken(userDetails);
-
             // 3. Повертаємо відповідь, що містить згенерований токен
             AuthResponse authResponse = new AuthResponse(jwtToken);
             return ResponseEntity.ok(authResponse); // Повертаємо 200 OK з тілом AuthResponse
-
         } catch (AuthenticationException e) {
             // Обробка помилок аутентифікації (невірний логін/пароль)
-            // Глобальний обробник може обробити ці винятки більш красиво
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Невірний логін або пароль"); // 401 Unauthorized
         } catch (Exception e) {
             e.printStackTrace();

@@ -4,19 +4,18 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
-
 import java.time.LocalDateTime; // Для збереження дати і часу створення коментаря
 
-@Entity // Вказує, що цей клас є сутністю JPA і буде мапитися на таблицю в базі даних
-@Table(name = "comments") // Вказує назву таблиці в базі даних (необов'язково, якщо назва класу = назва таблиці)
-@Data // Анотація Lombok для автоматичного створення гетерів, сетерів, toString, equals і hashCode
-@NoArgsConstructor // Анотація Lombok для створення конструктора без аргументів
-@AllArgsConstructor // Анотація Lombok для створення конструктора з усіма аргументами
+@Entity
+@Table(name = "comments")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(exclude = {"author", "product"}) // Виключаємо зв'язки для equals/hashCode
 @ToString(exclude = {"author", "product"}) // Виключаємо зв'язки для toString
 public class Comment {
 
-    @Id // Позначає поле як первинний ключ
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) // Вказує, що ID буде генеруватися базою даних (автоінкремент)
     private Long id;
     @Column(nullable = false, columnDefinition = "TEXT") // Поле для тексту коментаря. nullable = false означає, що поле не може бути порожнім у базі. columnDefinition = "TEXT" може бути корисним для довших текстів.

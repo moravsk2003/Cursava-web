@@ -19,13 +19,9 @@ import java.util.function.Function; // Для отримання інформа�
 @Component // Робить цей клас Spring-компонентом, щоб його можна було впроваджувати
 public class JwtUtil {
 
-    // Отримуємо секретний ключ з application.properties
-    // Приклад: jwt.secret=YourSuperSecretKeyThatIsLongEnough
     @Value("${jwt.secret}")
     private String secret;
 
-    // Отримуємо час життя токена в мілісекундах з application.properties
-    // Приклад: jwt.expiration=86400000 (24 години)
     @Value("${jwt.expiration}")
     private long expiration;
 
@@ -99,8 +95,5 @@ public class JwtUtil {
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
-    // *** ДОДАЙ ЦІ ЗНАЧЕННЯ ДО application.properties ***
-    // jwt.secret=ТВІЙ_ДУЖЕ_СЕКРЕТНИЙ_КЛЮЧ_МАЄ_БУТИ_ДОВГИМ_І_СКЛАДНИМ_НЕ_МЕНШЕ_256_БІТ (закодуй його в Base64)
-    // jwt.expiration=Час_життя_токена_в_мілісекундах (наприклад, 86400000 для 24 годин)
 
 }

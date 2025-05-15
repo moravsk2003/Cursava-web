@@ -16,14 +16,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
 @RestController
-//@CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/users")
 
 public class UserController {
     private final UserService userService;
-
-
-
     public UserController(UserService userService) {
         this.userService = userService;
     }
@@ -38,46 +34,38 @@ public class UserController {
         return userService.getAllUsers();
     }
 
-
     @PostMapping("/register")
     public boolean createUser2(@RequestBody User user) {
         try {
             User existingUser = userService.getUserByEmail(user.getEmail());
 
                 if (userService.createUser(user) != null) {
-
                     return true;
                 } else {
-
                     return false;
                 }
 
         } catch (Exception e) {
             e.printStackTrace();
             // Обробка інших можливих помилок
-
             return false;
         }
-
     }
 
     @GetMapping("/text")
     public String createUser3() {
         System.out.println("ok");
         return "ok";
-
     }
 
     @PostMapping("/save")
     public User createUser(@RequestBody User user) {
         return userService.createUser(user);
-
     }
 
     @PostMapping("/email")
     public User getUserByEmail(@RequestBody String email) {
         return userService.getUserByEmail(email);
-
     }
 
     @PostMapping("/login") // Обробляє POST запити на /api/auth/login
@@ -162,7 +150,6 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null); // 500 Internal Server Error
         }
     }
-    // *** НОВИЙ МЕТОД: Оновити користувача за ID (без зміни пароля) ***
     @PutMapping("/{id}") // PUT /users/{id}
     public ResponseEntity<User> updateUser(
             @PathVariable Long id, // ID користувача з URL шляху
@@ -171,7 +158,6 @@ public class UserController {
         try {
             // Викликаємо сервісний метод для оновлення
             User updatedUser = userService.updateUser(id, userUpdateDetails);
-            // *** Можливо, повернути DTO без пароля та інших чутливих даних ***
             return ResponseEntity.ok(updatedUser); // Повертаємо 200 OK та оновленого користувача
         } catch (ResourceNotFoundException e) {
             throw e; // GlobalExceptionHandler обробить і поверне 404
@@ -180,5 +166,4 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null); // 500
         }
     }
-
 }

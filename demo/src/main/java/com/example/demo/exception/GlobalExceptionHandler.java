@@ -32,8 +32,4 @@ public class GlobalExceptionHandler {
         // Повертаємо ResponseEntity зі статусом 404 NOT FOUND та нашим тілом помилки AppError
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
-
-    // Тут можна додати інші методи @ExceptionHandler для обробки інших типів винятків,
-    // наприклад, @ExceptionHandler(MethodArgumentNotValidException.class) для помилок валідації
-    // або @ExceptionHandler(Exception.class) для загальних неочікуваних помилок.
 }

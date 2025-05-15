@@ -3,40 +3,33 @@ package com.example.demo.controller;
 import com.example.demo.model.Comment;
 import com.example.demo.model.User;
 import com.example.demo.service.CommentService;
-import lombok.Data;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import com.example.demo.dto.CommentRequest;
-// *** ДОДАНО: Імпорти Spring Security для отримання поточного користувача ***
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import com.example.demo.service.UserService; // Потрібен для отримання користувача за UserDetails
-
-// *** ДОДАНО: Імпорт ResourceNotFoundException (якщо ловимо його тут) ***
 import com.example.demo.exception.ResourceNotFoundException;
 
 @RestController
-//@CrossOrigin(origins = "http://localhost:3000") // Дозволяємо запити з фронтенду на localhost:3000
 @RequestMapping("/comments") // Базовий шлях для ендпоінтів коментарів
 public class CommentController {
 
     private final CommentService commentService;
     private final UserService userService; // Потрібен для отримання поточного користувача
 
-    // Оновлюємо конструктор, якщо додали UserService
     public CommentController(CommentService commentService, UserService userService) {
         this.commentService = commentService;
         this.userService = userService;
     }
     // Ендпоінт для додавання нового коментаря до продукту
     // Очікуємо отримати об'єкт з текстом коментаря, ID продукту та ID автора
-    // У реальності, ID автора краще брати з контексту аутентифікації Spring Security
+    // ID автора брати з контексту аутентифікації Spring Security
     @PostMapping("/product/{productId}") // Шлях для додавання коментаря до конкретного продукту
-    public ResponseEntity<Comment> addCommentToProduct( // *** МОЖНА ЗМІНИТИ повернення на CommentDto ***
-                                                        @PathVariable Long productId,
+    public ResponseEntity<Comment> addCommentToProduct( @PathVariable Long productId,
                                                         @RequestBody CommentRequest commentRequest // Приймаємо CommentRequest (з текстом)
                                                         // !!! authorId БЕРЕМО З КОНТЕКСТУ АУТЕНТИФІКАЦІЇ !!!
     ) {
@@ -64,13 +57,9 @@ public class CommentController {
             Comment newComment = commentService.createComment(
                     productId,
                     commentRequest.getText(), // Беремо текст з CommentRequest
-                    authorId // <<< Передаємо ID автора, отриманий безпечно!
+                    authorId // <<< Передаємо ID автора
             );
-            // *** МОЖНА ЗМІНИТИ повернення на ResponseEntity<CommentDto> ***
-            // CommentDto newCommentDto = CommentDto.fromEntity(newComment); // Потрібен CommentDto.fromEntity
-            // return ResponseEntity.status(HttpStatus.CREATED).body(newCommentDto);
-
-            return ResponseEntity.status(HttpStatus.CREATED).body(newComment); // Поки повертаємо Comment
+            return ResponseEntity.status(HttpStatus.CREATED).body(newComment);
         } catch (ResourceNotFoundException e) {
             // Обробка помилки, якщо продукт або користувач (хоча користувач тут має бути знайдений) не існує
             e.printStackTrace();
@@ -81,7 +70,6 @@ public class CommentController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null); // 500 Internal Server Error
         }
     }
-
 
     // Ендпоінт для отримання всіх коментарів до певного продукту
     @GetMapping("/product/get/{productId}") // Шлях для отримання коментарів до конкретного продукту
@@ -97,15 +85,11 @@ public class CommentController {
 
     // Ендпоінт для видалення коментаря за його ID
     @DeleteMapping("/{commentId}") // Шлях для видалення коментаря за його ID
-    // Цей ендпоінт, ймовірно, має бути захищений (видалити може тільки автор або адмін)
+    // Цей ендпоінт, , має бути захищений (видалити може тільки автор або адмін)
     public ResponseEntity<?> deleteComment(@PathVariable Long commentId) {
         try {
-            // У реальному додатку, перевіряй, чи поточний користувач має право видаляти цей коментар
-            // Long currentUserId = ... отримати з контексту аутентифікації
-            // boolean deleted = commentService.deleteCommentByIdIfAuthor(commentId, currentUserId); // Використовуй такий метод
             // 1. Отримуємо інформацію про поточного аутентифікованого користувача
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
             // Перевіряємо, чи користувач аутентифікований (цей ендпоінт має бути захищеним)
             if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null); // 401 Unauthorized
@@ -117,12 +101,10 @@ public class CommentController {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null); // Несподіваний тип Principal
             }
             String currentUsername = ((UserDetails) principal).getUsername(); // Отримуємо логін (email)
-
-                // 2. Знаходимо повний об'єкт User для поточного користувача за його логіном (email)
+            // 2. Знаходимо повний об'єкт User для поточного користувача за його логіном (email)
             User currentUser = userService.getUserByEmail(currentUsername);
             Long authorId = currentUser.getId();
             boolean deleted = commentService.deleteCommentById(commentId,authorId); // Використовуємо простий метод з сервісу
-
             if (deleted) {
                 return ResponseEntity.noContent().build(); // 204 No Content при успішному видаленні
             } else {

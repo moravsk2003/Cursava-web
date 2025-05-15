@@ -24,7 +24,7 @@ import java.util.Arrays;
 @EnableWebSecurity // Вмикаємо конфігурацію веб-безпеки Spring Security
 public class SecurityConfig {
 
-    // Бін PasswordEncoder, який ми додавали раніше
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -41,9 +41,9 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
         // Дозволяємо потрібні HTTP методи
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        // Дозволяємо потрібні заголовки (Authorization, Content-Type, Accept тощо)
+        // Дозволяємо потрібні заголовки
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));
-        // Дозволяємо надсилати куки та дані для аутентифікації (наприклад, у випадку сесій або Basic Auth, хоча для JWT менш типово)
+        // Дозволяємо надсилати куки та дані для аутентифікації
         configuration.setAllowCredentials(true);
         // Максимальний час, протягом якого результати preflight запиту можуть кешуватися (в секундах)
         configuration.setMaxAge(3600L);
@@ -54,7 +54,7 @@ public class SecurityConfig {
         return source;
     }
 
-    // Налаштовуємо провайдер аутентифікації, який використовує наш UserDetailsService та PasswordEncoder
+    // Налаштовуємо провайдер аутентифікації,
     @Bean
     public DaoAuthenticationProvider daoAuthenticationProvider(UserService userService, PasswordEncoder passwordEncoder) {
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
@@ -63,46 +63,29 @@ public class SecurityConfig {
         return daoAuthenticationProvider;
     }
 
-    // Бін SecurityFilterChain, який налаштовує правила доступу(МОДИФІКОВАНО для додавання JWT фільтра)
+    // Бін SecurityFilterChain, який налаштовує правила доступу
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtRequestFilter jwtRequestFilter) throws Exception { // Впроваджуємо JwtRequestFilter як аргумент
         http
 
                 // Відключаємо CSRF
                 .csrf(AbstractHttpConfigurer::disable)
-// *** ДОДАНО: Застосовуємо глобальну конфігурацію CORS ***
-                // Важливо, щоб CORS був застосований рано в ланцюжку фільтрів.
+                // Застосовуємо глобальну конфігурацію CORS ***
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-
                 // Налаштовуємо правила авторизації
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll() // Ендпоінти аутентифікації публічні
                         // Інші публічні ендпоінти (якщо є)
                         .requestMatchers("/products/by-type","/users/hel", "/product/hel","/auth/register","/users","/products","comments/product/get/{productId}").permitAll()
                         // Налаштуйте публічні GET ендпоінти продуктів/коментарів, якщо вони доступні без аутентифікації
-                        // .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll() // Приклад: всі GET запити до /api/products
-                        // .requestMatchers(HttpMethod.GET, "/api/comments/product/**").permitAll() // Приклад: всі GET запити до коментарів продукту
                         // Всі інші запити вимагають аутентифікації
                         .anyRequest().authenticated()
                 )
                 // Налаштовуємо безстатусні сесії
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
                 // Додаємо JWT фільтр до ланцюжка фільтрів ***
-                // Розміщуємо його перед стандартним фільтром UsernamePasswordAuthenticationFilter
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
-
-        // 4. Можна додати інші налаштування, наприклад, обробку винятків аутентифікації/авторизації
-        // .exceptionHandling(exception -> exception.authenticationEntryPoint(authenticationEntryPoint)) // Якщо потрібен кастомний обробник неавторизованого доступу
-
         ; // Закінчення конфігурації http
-
         return http.build();
     }
-
-
-
-
-
-
 }

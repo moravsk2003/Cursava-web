@@ -7,9 +7,6 @@ import java.util.Optional;
 import java.util.List;
 
 public interface ProductRepository  extends JpaRepository<Product, Long> {
-    List<Product> findByType(ProductType type); // Змінили тип повернення на List<Product>
-
-
+    List<Product> findByType(ProductType type);
     Optional<Product> findByOriginalTitle(String originalTitle);
-
 }

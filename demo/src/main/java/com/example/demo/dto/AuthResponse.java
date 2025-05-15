@@ -4,9 +4,9 @@ import lombok.Data; // Lombok
 import lombok.NoArgsConstructor; // Lombok
 import lombok.AllArgsConstructor; // Lombok
 
-@Data // Гетери, сетери, toString, equals, hashCode
-@NoArgsConstructor // Конструктор без аргументів
-@AllArgsConstructor // Конструктор з усіма аргументами
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class AuthResponse {
     private String token;
 

@@ -15,5 +15,5 @@ public enum ProductType {
     MANHVUA,
     MANGA,
     NOWELA,
-    
+
 }

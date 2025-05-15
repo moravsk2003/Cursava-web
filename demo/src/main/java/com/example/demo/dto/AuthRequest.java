@@ -5,9 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data // Гетери, сетери, toString, equals, hashCode
-@NoArgsConstructor // Конструктор без аргументів
-@AllArgsConstructor // Конструктор з усіма аргументами
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class AuthRequest {
 
     @NotBlank(message = "Email не може бути порожнім")
@@ -16,9 +16,6 @@ public class AuthRequest {
     @NotBlank(message = "Пароль не може бути порожнім")
     private String password; // Поле для введення пароля
 
-
-
-    // Також можна додати метод toString() для легшого логування та налагодження
     @Override
     public String toString() {
         return "LoginRequest{" +
